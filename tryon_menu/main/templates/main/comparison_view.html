@@ -1,0 +1,101 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div>
+    <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 class="mb-0">Rank Models - {{ batch.name }}</h2>
+            <button id="toggleButton" class="btn btn-primary" onclick="toggleView()">Show Input</button>
+        </div>
+
+        {% if unranked_pair %}
+            <!-- Notes Section -->
+            <div class="mb-4">
+                <textarea id="rankingNotes" class="form-control" rows="2" placeholder="Add your notes about this comparison here..." style="resize: vertical;"></textarea>
+            </div>
+
+            <!-- Input Set Images (Hidden by default) -->
+            <div id="inputSetView" style="display: none; margin-bottom: 20px;">
+                <div style="display: flex; justify-content: center; gap: 20px;">
+                    <div style="text-align: center;">
+                        <h4>Garment</h4>
+                        <img src="{{ unranked_pair.0.input_set.garment_image }}" style="max-height: 300px; max-width: 100%;" alt="Garment">
+                    </div>
+                    <div style="text-align: center;">
+                        <h4>Model</h4>
+                        <img src="{{ unranked_pair.0.input_set.model_image }}" style="max-height: 300px; max-width: 100%;" alt="Model">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Output Images -->
+            <div id="outputView" style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="flex: 1; text-align: center;">
+                    <h3>{{ unranked_pair.0.model_version }}</h3>
+                    <form method="post" action="{% url 'submit_ranking' %}" id="rankingFormLeft">
+                        {% csrf_token %}
+                        <input type="hidden" name="batch_id" value="{{ batch.id }}">
+                        <input type="hidden" name="loser_id" id="loserIdLeft" value="{{ unranked_pair.1.id }}">
+                        <input type="hidden" name="notes" id="notesInputLeft">
+                        <button type="submit" name="winner_id" value="{{ unranked_pair.0.id }}" 
+                                style="background-color: black; color: white; padding: 10px; border: none; cursor: pointer;"
+                                onclick="return submitWithNotes('left')">
+                            Left is Better
+                        </button>
+                    </form>
+                    <div style="display: flex; justify-content: center; align-items: center; height: 80vh;">
+                        <img src="{{ unranked_pair.0.image_path }}" style="max-height: 100%; max-width: 100%;" alt="Model A">
+                    </div>
+                </div>
+                <div style="flex: 1; text-align: center;">
+                    <h3>{{ unranked_pair.1.model_version }}</h3>
+                    <form method="post" action="{% url 'submit_ranking' %}" id="rankingFormRight">
+                        {% csrf_token %}
+                        <input type="hidden" name="batch_id" value="{{ batch.id }}">
+                        <input type="hidden" name="loser_id" id="loserIdRight" value="{{ unranked_pair.0.id }}">
+                        <input type="hidden" name="notes" id="notesInputRight">
+                        <button type="submit" name="winner_id" value="{{ unranked_pair.1.id }}" 
+                                style="background-color: black; color: white; padding: 10px; border: none; cursor: pointer;"
+                                onclick="return submitWithNotes('right')">
+                            Right is Better
+                        </button>
+                    </form>
+                    <div style="display: flex; justify-content: center; align-items: center; height: 80vh;">
+                        <img src="{{ unranked_pair.1.image_path }}" style="max-height: 100%; max-width: 100%;" alt="Model B">
+                    </div>
+                </div>
+            </div>
+        {% else %}
+        <div>
+            All pairs in this batch have been ranked. <a href="{% url 'batch_selection' %}">Choose another batch</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    function validateSubmission(side) {
+        // This function can be used to perform any additional validation if needed
+        return true;
+    }
+
+    function submitWithNotes(side) {
+        const notes = document.getElementById('rankingNotes').value;
+        document.getElementById('notesInput' + side.charAt(0).toUpperCase() + side.slice(1)).value = notes;
+        return validateSubmission(side);
+    }
+
+    function toggleView() {
+        const inputSetView = document.getElementById('inputSetView');
+        const toggleButton = document.getElementById('toggleButton');
+        
+        if (inputSetView.style.display === 'none') {
+            inputSetView.style.display = 'block';
+            toggleButton.textContent = 'Show Output';
+        } else {
+            inputSetView.style.display = 'none';
+            toggleButton.textContent = 'Show Input';
+        }
+    }
+</script>
+{% endblock %} 

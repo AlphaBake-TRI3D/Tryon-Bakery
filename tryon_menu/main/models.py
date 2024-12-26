@@ -21,6 +21,7 @@ class Model(models.Model):
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name='models')
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
+    url = models.URLField(max_length=500, blank=True, help_text="URL to the model's documentation or source")
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
@@ -32,12 +33,13 @@ class ModelVersion(models.Model):
     resolution = models.IntegerField(help_text="Resolution in pixels")
     description = models.TextField(blank=True)
     created_at = models.DateTimeField(default=timezone.now)
+    elo_rating = models.IntegerField(default=1500)  # Starting ELO rating
 
     def __str__(self):
         return f"{self.model.name} v{self.version}"
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['-elo_rating', '-created_at']
 
 class InputSet(models.Model):
     name = models.CharField(max_length=200)
@@ -168,3 +170,68 @@ class PasswordResetToken(models.Model):
 
     def __str__(self):
         return f"Reset token for {self.user.username}"
+
+class RankedPair(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='rankings')
+    tryon_batch = models.ForeignKey('TryonBatch', on_delete=models.CASCADE, related_name='rankings')
+    winner_tryon = models.ForeignKey('Tryon', on_delete=models.CASCADE, related_name='won_rankings')
+    loser_tryon = models.ForeignKey('Tryon', on_delete=models.CASCADE, related_name='lost_rankings')
+    notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    
+    # Rating tracking fields
+    winner_rating_before = models.IntegerField(null=True)
+    winner_rating_after = models.IntegerField(null=True)
+    loser_rating_before = models.IntegerField(null=True)
+    loser_rating_after = models.IntegerField(null=True)
+
+    class Meta:
+        unique_together = [['user', 'winner_tryon', 'loser_tryon']]
+        ordering = ['-created_at']
+
+    def save(self, *args, **kwargs):
+        # Store initial ratings
+        self.winner_rating_before = self.winner_tryon.model_version.elo_rating
+        self.loser_rating_before = self.loser_tryon.model_version.elo_rating
+
+        # Calculate ELO rating changes
+        K = 32  # K-factor for ELO calculation
+        winner_rating = self.winner_rating_before
+        loser_rating = self.loser_rating_before
+
+        # Expected scores
+        expected_winner = 1 / (1 + 10 ** ((loser_rating - winner_rating) / 400))
+        expected_loser = 1 - expected_winner
+
+        # New ratings
+        winner_new_rating = winner_rating + K * (1 - expected_winner)
+        loser_new_rating = loser_rating + K * (0 - expected_loser)
+
+        # Update ratings
+        self.winner_tryon.model_version.elo_rating = round(winner_new_rating)
+        self.loser_tryon.model_version.elo_rating = round(loser_new_rating)
+        
+        # Store final ratings
+        self.winner_rating_after = self.winner_tryon.model_version.elo_rating
+        self.loser_rating_after = self.loser_tryon.model_version.elo_rating
+        
+        # Save model versions
+        self.winner_tryon.model_version.save()
+        self.loser_tryon.model_version.save()
+
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.user.username}'s ranking: {self.winner_tryon.model_version} > {self.loser_tryon.model_version}"
+
+    @property
+    def winner_rating_change(self):
+        if self.winner_rating_before is not None and self.winner_rating_after is not None:
+            return self.winner_rating_after - self.winner_rating_before
+        return None
+
+    @property
+    def loser_rating_change(self):
+        if self.loser_rating_before is not None and self.loser_rating_after is not None:
+            return self.loser_rating_after - self.loser_rating_before
+        return None

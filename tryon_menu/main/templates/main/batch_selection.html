@@ -1,0 +1,25 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="container-fluid vh-100 d-flex flex-column p-4">
+    <h2 class="mb-4">Select a Batch to Rank</h2>
+    <div class="row">
+        {% for batch in batches %}
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ batch.name }}</h5>
+                    <p class="card-text">{{ batch.description|truncatewords:30 }}</p>
+                    <p class="card-text"><small class="text-muted">Created: {{ batch.created_at|date:"Y-m-d H:i" }}</small></p>
+                    <a href="{% url 'comparison_view' batch_id=batch.id %}" class="btn btn-primary">Rank This Batch</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col">
+            <p>No batches available for ranking.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

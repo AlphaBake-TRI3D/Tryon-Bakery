@@ -2,29 +2,39 @@
 
 <nav class="navbar">
     <div class="nav-brand">
-        <a href="{% url 'index' %}">Tryon Bakery</a>
+        <a href="{% url 'index' %}">Tryon Menu</a>
     </div>
     
     <div class="nav-links">
         {% if user.is_authenticated %}
-            <div class="dropdown">
-                <button class="dropbtn">Lists</button>
-                <div class="dropdown-content">
-                    <a href="{% url 'inputset_list' %}">Input Sets</a>
-                    <a href="{% url 'index' %}">Tryon Batches</a>
-                </div>
+        <div class="dropdown">
+            <button class="dropbtn">Lists</button>
+            <div class="dropdown-content">
+                <a href="{% url 'modelversion_list' %}">Leader Board</a>
+                <a href="{% url 'inputset_list' %}">Input Sets</a>
+                <a href="{% url 'index' %}">Tryon Batches</a>
+                <a href="{% url 'my_rankings' %}">My Rankings</a>
             </div>
-            <div class="dropdown">
-                <button class="dropbtn">Create</button>
-                <div class="dropdown-content">
-                    <a href="{% url 'upload_images' %}">Input Set</a>
-                    <a href="{% url 'create_tryonbatch_step1' %}">Tryon Batch</a>
-                </div>
+        </div>
+        <div class="dropdown">
+            <button class="dropbtn">Create</button>
+            <div class="dropdown-content">
+                <a href="{% url 'upload_images' %}">Input Set</a>
+                <a href="{% url 'create_tryonbatch_step1' %}">Tryon Batch</a>
             </div>
-            <a href="{% url 'logout' %}" class="nav-link">Logout</a>
+        </div>
+        <a href="{% url 'logout' %}" class="nav-link">Logout</a>
         {% else %}
-            <a href="{% url 'login' %}" class="nav-link">Login</a>
-            <a href="{% url 'signup' %}" class="nav-link">Sign Up</a>
+        <div class="dropdown">
+            <button class="dropbtn">Lists</button>
+            <div class="dropdown-content">
+                <a href="{% url 'inputset_list' %}">Input Sets</a>
+                <a href="{% url 'modelversion_list' %}">Model Versions</a>
+                <a href="{% url 'index' %}">Tryon Batches</a>
+            </div>
+        </div>
+        <a href="{% url 'login' %}" class="nav-link">Login</a>
+        <a href="{% url 'signup' %}" class="nav-link">Sign Up</a>
         {% endif %}
     </div>
 </nav>

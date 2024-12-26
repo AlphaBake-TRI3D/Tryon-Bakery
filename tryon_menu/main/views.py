@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.conf import settings
 import uuid
-from .models import TryonBatch, Tryon, PasswordResetToken, InputSet, ModelVersion
+from .models import TryonBatch, Tryon, PasswordResetToken, InputSet, ModelVersion, RankedPair
 import boto3
 from PIL import Image
 import io
@@ -15,29 +15,45 @@ from tryon_menu.aws_constants import (
     AWS_STORAGE_BUCKET_NAME,
     AWS_S3_REGION_NAME
 )
+from django.core.paginator import Paginator
 
 def index_view(request):
     batches = TryonBatch.objects.all().order_by('-created_at')
     return render(request, 'main/index.html', {'batches': batches})
 
-def comparison_view(request, batch_id=None):
-    # Get the latest batch if no batch_id is provided
-    if batch_id is None:
-        batch = TryonBatch.objects.latest('created_at')
-    else:
-        batch = get_object_or_404(TryonBatch, id=batch_id)
+@login_required
+def comparison_view(request, batch_id):
+    if not batch_id:
+        return redirect('batch_selection')
     
-    # Get all tryons in this batch
-    tryons = batch.tryons.all().select_related('model_version', 'model_version__model', 'input_set')
+    batch = get_object_or_404(TryonBatch, id=batch_id)
     
-    # Prepare data for the template
+    # Get all unranked pairs for this batch
+    ranked_pairs = RankedPair.objects.filter(tryon_batch=batch, user=request.user).values_list('winner_tryon', 'loser_tryon')
+    
+    # Get all tryons in this batch with related data
+    tryons = list(batch.tryons.all().select_related(
+        'model_version',
+        'model_version__model',
+        'input_set'
+    ))
+    
+    # Find an unranked pair
+    unranked_pair = None
+    for i in range(len(tryons)):
+        for j in range(i + 1, len(tryons)):
+            if (tryons[i].id, tryons[j].id) not in ranked_pairs and (tryons[j].id, tryons[i].id) not in ranked_pairs:
+                unranked_pair = (tryons[i], tryons[j])
+                break
+        if unranked_pair:
+            break
+    
     context = {
         'batch': batch,
-        'tryons': tryons,
-        'input_set': tryons.first().input_set if tryons.exists() else None,
+        'unranked_pair': unranked_pair,
     }
     
-    return render(request, 'main/comparison.html', context)
+    return render(request, 'main/comparison_view.html', context)
 
 def login_view(request):
     if request.method == 'POST':
@@ -328,7 +344,6 @@ def create_tryonbatch_step2(request):
         'model_versions': ModelVersion.objects.filter(id__in=tryonbatch_data['model_version_ids'])
     })
 
-@login_required
 def tryonbatch_detail(request, batch_id):
     batch = get_object_or_404(TryonBatch, id=batch_id)
     tryons = batch.tryons.all().select_related('model_version', 'model_version__model', 'input_set')
@@ -338,3 +353,151 @@ def tryonbatch_detail(request, batch_id):
         'tryons': tryons,
         'input_set': tryons.first().input_set if tryons.exists() else None
     })
+
+def modelversion_list(request):
+    model_versions = ModelVersion.objects.all().select_related('model', 'model__organization').order_by('-elo_rating', '-created_at')
+    return render(request, 'main/modelversion_list.html', {'model_versions': model_versions})
+
+def modelversion_detail(request, modelversion_id):
+    model_version = get_object_or_404(ModelVersion, id=modelversion_id)
+    if request.method == 'POST' and request.user.is_staff:
+        # Handle form submission for admin editing
+        model_version.version = request.POST.get('version')
+        model_version.resolution = request.POST.get('resolution')
+        model_version.description = request.POST.get('description')
+        
+        # Update model URL
+        model = model_version.model
+        model.url = request.POST.get('model_url', '')
+        model.save()
+        
+        model_version.save()
+        return redirect('modelversion_detail', modelversion_id=modelversion_id)
+    
+    return render(request, 'main/modelversion_detail.html', {
+        'model_version': model_version,
+        'can_edit': request.user.is_staff
+    })
+
+@login_required
+def rank_models(request):
+    batch_id = request.GET.get('batch_id')
+    if batch_id:
+        batch = get_object_or_404(TryonBatch, id=batch_id)
+        tryons = batch.tryons.all()
+        
+        # Get already ranked pairs for this user and batch
+        ranked_pairs = RankedPair.objects.filter(
+            user=request.user,
+            tryon_batch=batch
+        ).values_list('winner_tryon_id', 'loser_tryon_id')
+        
+        # Create a set of ranked pairs for quick lookup
+        ranked_set = {(w, l) for w, l in ranked_pairs} | {(l, w) for w, l in ranked_pairs}
+        
+        # Find unranked pairs
+        unranked_pairs = []
+        tryon_list = list(tryons)
+        for i, tryon1 in enumerate(tryon_list):
+            for tryon2 in tryon_list[i+1:]:
+                if (tryon1.id, tryon2.id) not in ranked_set:
+                    unranked_pairs.append((tryon1, tryon2))
+                    break  # Only get one unranked pair per tryon
+            if unranked_pairs:
+                break  # Stop after finding first unranked pair
+        
+        context = {
+            'batch': batch,
+            'unranked_pair': unranked_pairs[0] if unranked_pairs else None,
+        }
+    else:
+        # Show list of batches that have items to rank
+        batches = TryonBatch.objects.all().order_by('-created_at')
+        context = {'batches': batches}
+    
+    return render(request, 'main/rank_models.html', context)
+
+@login_required
+def submit_ranking(request):
+    if request.method == 'POST':
+        winner_id = request.POST.get('winner_id')
+        loser_id = request.POST.get('loser_id')
+        batch_id = request.POST.get('batch_id')
+        notes = request.POST.get('notes', '')
+        
+        winner = get_object_or_404(Tryon, id=winner_id)
+        loser = get_object_or_404(Tryon, id=loser_id)
+        batch = get_object_or_404(TryonBatch, id=batch_id)
+        
+        RankedPair.objects.create(
+            user=request.user,
+            tryon_batch=batch,
+            winner_tryon=winner,
+            loser_tryon=loser,
+            notes=notes
+        )
+        
+        return redirect('comparison_view', batch_id=batch_id)
+    return redirect('batch_selection')
+
+@login_required
+def my_rankings(request):
+    # Get the tab from query parameters, default to 'my'
+    active_tab = request.GET.get('tab', 'my')
+    
+    # Base query with all necessary related fields
+    base_query = RankedPair.objects.select_related(
+        'winner_tryon__model_version',
+        'winner_tryon__model_version__model',
+        'loser_tryon__model_version',
+        'loser_tryon__model_version__model',
+        'tryon_batch',
+        'user'
+    ).order_by('-created_at')
+    
+    # Filter based on active tab
+    if active_tab == 'my':
+        rankings = base_query.filter(user=request.user)
+    else:  # 'all' tab
+        rankings = base_query
+    
+    # Pagination
+    paginator = Paginator(rankings, 20)  # Show 20 rankings per page
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'page_obj': page_obj,
+        'active_tab': active_tab,
+    }
+    
+    return render(request, 'main/my_rankings.html', context)
+
+@login_required
+def delete_ranking(request, ranking_id):
+    if request.method == 'POST':
+        ranking = get_object_or_404(RankedPair, id=ranking_id, user=request.user)
+        
+        # Get the model versions
+        winner_model = ranking.winner_tryon.model_version
+        loser_model = ranking.loser_tryon.model_version
+        
+        # Reverse the ELO changes if they exist
+        if ranking.winner_rating_before is not None and ranking.loser_rating_before is not None:
+            # Restore the original ratings
+            winner_model.elo_rating = ranking.winner_rating_before
+            loser_model.elo_rating = ranking.loser_rating_before
+            
+            # Save the model versions with their restored ratings
+            winner_model.save()
+            loser_model.save()
+        
+        # Delete the ranking
+        ranking.delete()
+        
+    return redirect('my_rankings')
+
+@login_required
+def batch_selection(request):
+    batches = TryonBatch.objects.all().order_by('-created_at')
+    return render(request, 'main/batch_selection.html', {'batches': batches})
