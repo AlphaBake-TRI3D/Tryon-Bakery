@@ -94,4 +94,5 @@ tryon_menu/main/static/outputs/tryonBatches/*
 
 # Local settings
 settings_local.py
-local_settings.py 
+local_settings.py
+aws_constants.py 

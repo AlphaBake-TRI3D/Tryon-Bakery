@@ -1,0 +1,101 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="upload-container">
+    <h2>Upload Images</h2>
+    {% if error %}
+    <div class="alert alert-error">
+        {{ error }}
+    </div>
+    {% endif %}
+    <form method="post" enctype="multipart/form-data" class="upload-form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="name">Input Set Name:</label>
+            <input type="text" id="name" name="name" required class="form-control">
+        </div>
+        <div class="form-group">
+            <label for="garment_image">Garment Image:</label>
+            <input type="file" id="garment_image" name="garment_image" accept="image/*" required class="form-control">
+            <div id="garment_preview" class="image-preview"></div>
+        </div>
+        <div class="form-group">
+            <label for="model_image">Model Image:</label>
+            <input type="file" id="model_image" name="model_image" accept="image/*" required class="form-control">
+            <div id="model_preview" class="image-preview"></div>
+        </div>
+        <button type="submit" class="btn-primary">Upload Images</button>
+    </form>
+</div>
+
+<style>
+    .upload-container {
+        max-width: 800px;
+        margin: 100px auto;
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .upload-form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-control {
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1em;
+    }
+
+    .image-preview {
+        width: 200px;
+        height: 200px;
+        border: 2px dashed #ddd;
+        margin-top: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+
+    .btn-primary {
+        align-self: flex-start;
+    }
+</style>
+
+<script>
+    function previewImage(input, previewId) {
+        const preview = document.getElementById(previewId);
+        const file = input.files[0];
+        
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.style.backgroundImage = `url(${e.target.result})`;
+            }
+            reader.readAsDataURL(file);
+        }
+    }
+
+    document.getElementById('garment_image').addEventListener('change', function() {
+        previewImage(this, 'garment_preview');
+    });
+
+    document.getElementById('model_image').addEventListener('change', function() {
+        previewImage(this, 'model_preview');
+    });
+</script>
+{% endblock %} 
