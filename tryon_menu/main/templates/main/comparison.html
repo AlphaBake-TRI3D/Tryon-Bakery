@@ -8,7 +8,7 @@
     <style>
         body {
             margin: 0;
-            padding: 0;
+            padding-top: 60px;
             background-color: #f5f5f5;
         }
 
@@ -34,7 +34,7 @@
             display: flex;
             flex-wrap: wrap;
             justify-content: space-around;
-            min-height: calc(100vh - 200px);
+            min-height: calc(100vh - 260px);
             padding: 20px;
             gap: 20px;
             box-sizing: border-box;
@@ -46,7 +46,7 @@
             flex: 1 1 30%;
             display: flex;
             flex-direction: column;
-            height: calc(100vh - 240px);
+            height: calc(100vh - 300px);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
             padding: 20px;
             border-radius: 12px;
@@ -225,30 +225,35 @@
 
         .input-toggle {
             position: fixed;
-            top: 20px;
+            top: 80px;
             right: 20px;
             z-index: 900;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .input-toggle button {
-            background-color: rgba(0, 0, 0, 0.8);
-            color: white;
+            background-color: #fff;
+            color: #333;
             border: none;
             padding: 12px 20px;
             border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
             transition: all 0.3s ease;
-            backdrop-filter: blur(5px);
+            font-weight: 600;
         }
 
         .input-toggle button:hover {
-            background-color: rgba(0, 0, 0, 0.9);
+            background-color: #f5f5f5;
             transform: translateY(-2px);
         }
     </style>
 </head>
 <body>
+    {% include 'main/navbar.html' %}
+    
     <div class="header">
         <h1>{{ batch.name }}</h1>
         <p>{{ batch.description }}</p>

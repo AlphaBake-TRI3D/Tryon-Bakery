@@ -1,0 +1,38 @@
+{% load static %}
+<nav class="navbar">
+    <div class="navbar-content">
+        <a href="{% url 'index' %}" class="nav-link">Tryon Comparisons</a>
+    </div>
+</nav>
+
+<style>
+    .navbar {
+        background-color: #fff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        padding: 15px 20px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+    }
+
+    .navbar-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+    }
+
+    .nav-link {
+        text-decoration: none;
+        color: #333;
+        font-weight: 600;
+        font-size: 1.2em;
+        transition: color 0.3s ease;
+    }
+
+    .nav-link:hover {
+        color: #666;
+    }
+</style> 
