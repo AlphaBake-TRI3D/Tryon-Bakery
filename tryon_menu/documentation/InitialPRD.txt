@@ -1,4 +1,161 @@
-tryon_menu is a django project, that benchmarks all the tryon models in the market. 
+# Tryon-Bakery Project PRD (Product Requirements Document)
+
+## Project Overview
+- Project Name: Tryon-Bakery
+- Type: Django Web Application
+- Purpose: Benchmarking and comparison platform for virtual try-on solutions
+- Production URL: https://board.tri3d.in
+
+## Core Objectives
+1. Create a comprehensive benchmarking system for virtual try-on models
+2. Provide comparative analysis of different try-on solutions in the market
+3. Present results through a user-friendly web interface
+
+## Technical Stack
+- Backend Framework: Django
+- Project Structure: tryon_menu (main Django project)
+- Storage: AWS S3 for image storage and retrieval
+
+## Image Handling and Storage
+1. AWS S3 Integration:
+   - Uses boto3 for S3 interactions
+   - Secure credential management via aws_constants.py (gitignored)
+   - Sample configuration provided in aws_constants.py.sample
+
+2. Image Processing:
+   - Generates thumbnails for efficient loading
+   - Stores both full-size and thumbnail images
+   - Uses signed URLs with 7-day expiration for security
+
+3. Image Organization:
+   - Garment images: s3://bucket/garments/
+   - Model images: s3://bucket/models/
+   - Thumbnails: s3://bucket/thumbnails/
+   - Tryon results: s3://bucket/tryons/
+
+4. Model Structure:
+   - InputSet: Stores garment and model image pairs
+   - Tryon: Stores result images from different models
+   - All images use S3 keys instead of direct URLs
+   - Properties generate signed URLs when accessed
+
+5. UI Implementation:
+   - Thumbnail previews in listing pages
+   - Full-size images in detail views
+   - Modal viewers for enlarged images
+   - Side-by-side comparison views
+
+6. Security Considerations:
+   - AWS credentials kept out of version control
+   - Signed URLs prevent unauthorized access
+   - Thumbnails reduce bandwidth usage
+   - S3 bucket requires proper CORS configuration
+
+## Key Features
+1. Virtual try-on model integration
+2. Benchmarking capabilities
+3. Comparative analysis tools
+4. Results visualization
+
+## Target Users
+- Researchers in virtual try-on technology
+- Developers implementing try-on solutions
+- Fashion tech companies evaluating try-on models
+
+## Success Metrics
+- Accuracy of benchmarking results
+- Number of models successfully compared
+- System performance and reliability
+- User engagement metrics
+
+## Future Considerations
+- Additional model integration
+- Enhanced comparison metrics
+- Performance optimization
+- API accessibility
+
+## LLM Context
+This documentation is structured to assist future LLM interactions in understanding:
+- Project scope and objectives
+- Technical implementation details
+- Feature requirements
+- Success criteria
+- Image handling and storage patterns
+
+## Version Control
+- Repository Type: Git
+- Main Documentation: README.md in root directory
+- Detailed Documentation: /tryon_menu/documentation/
+
+## Authentication System
+1. User Management:
+   - Standard Django authentication with custom views
+   - Username/email login support
+   - Password reset via email
+   - No email verification required
+
+2. Templates Structure:
+   ```
+   main/templates/main/auth/
+   ├── login.html
+   ├── signup.html
+   ├── password_reset.html
+   └── password_reset_confirm.html
+   ```
+
+3. Key Features:
+   - Login with username or email
+   - Password reset via unique tokens
+   - Session-based authentication
+   - CSRF protection with trusted origins
+   - Responsive design with mobile support
+
+4. UI/UX Standards:
+   - Black navbar (#000000) with white text
+   - Consistent button styling across site
+   - Form validation with error messages
+   - Clean, modern authentication forms
+   - Responsive mobile-first design
+
+5. Email Configuration:
+   - SMTP support for production
+   - Console backend for development
+   - Settings in settings_local.py
+   - HTML email templates support
+
+6. Security Measures:
+   - CSRF_TRUSTED_ORIGINS for domains
+   - Password validation rules
+   - Token-based password reset
+   - Session security
+   - Secure password storage
+
+7. Models:
+   ```python
+   class PasswordResetToken(models.Model):
+       user = models.ForeignKey(User, on_delete=models.CASCADE)
+       token = models.CharField(max_length=100, unique=True)
+       created_at = models.DateTimeField(auto_now_add=True)
+       used = models.BooleanField(default=False)
+   ```
+
+8. URL Patterns:
+   ```python
+   urlpatterns = [
+       path('login/', views.login_view, name='login'),
+       path('signup/', views.signup_view, name='signup'),
+       path('logout/', views.logout_view, name='logout'),
+       path('password-reset/', views.password_reset_view, name='password_reset'),
+       path('reset-password/<str:token>/', views.password_reset_confirm_view, name='password_reset_confirm'),
+   ]
+   ```
+
+9. Development Notes:
+   - Use console email backend during development
+   - CSRF settings required for production domains
+   - Style consistency maintained through CSS variables
+   - Mobile-responsive design patterns
+   - Error handling for all authentication flows
 
 
 
