@@ -81,4 +81,8 @@ tryon_menu/main/static/inputs/inputsets/*
 tryon_menu/main/static/outputs/tryons/*
 !tryon_menu/main/static/outputs/tryons/.gitkeep
 tryon_menu/main/static/outputs/tryonBatches/*
-!tryon_menu/main/static/outputs/tryonBatches/.gitkeep 
+!tryon_menu/main/static/outputs/tryonBatches/.gitkeep
+
+# Local settings
+settings_local.py
+local_settings.py 
