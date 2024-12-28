@@ -34,3 +34,6 @@ ENV/
 .DS_Store
 staticfiles/
 
+inputs/
+outputs/
+

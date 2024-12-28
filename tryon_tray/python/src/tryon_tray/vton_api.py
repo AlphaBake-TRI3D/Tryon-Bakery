@@ -7,7 +7,7 @@ def VTON(
     garment_image: str,
     model_name: str = "fashnai",
     auto_download: bool = False,
-    download_dir: str = "outputs",
+    download_path: str = "outputs/result.jpg",
     max_polling_attempts: int = 60,
     polling_interval: int = 5,
     show_polling_progress: bool = False,
@@ -21,7 +21,7 @@ def VTON(
         garment_image: Path or URL to garment image
         model_name: Service to use ("fashnai", "klingai", "replicate")
         auto_download: If True, download result images locally
-        download_dir: Directory for downloaded images
+        download_path: Path for downloaded images (can be relative or absolute)
         max_polling_attempts: Maximum number of polling attempts (default: 60)
         polling_interval: Time between polling attempts in seconds (default: 5)
         show_polling_progress: If True, print polling progress information
@@ -57,14 +57,27 @@ def VTON(
     }
     
     if auto_download and isinstance(result_urls, list):
-        output_dir = Path(download_dir)
-        output_dir.mkdir(parents=True, exist_ok=True)
+        # Handle both relative and absolute paths
+        output_path = Path(download_path)
+        if not output_path.is_absolute():
+            output_path = Path.cwd() / output_path
+            
+        # Create parent directory if it doesn't exist
+        output_path.parent.mkdir(parents=True, exist_ok=True)
         
         local_paths = []
         for i, url in enumerate(result_urls):
-            output_path = output_dir / f"{model_name}_result_{i}.png"
-            download_image(url, str(output_path))
-            local_paths.append(str(output_path))
+            # For single result, use the exact path. For multiple results, add index suffix
+            if len(result_urls) == 1:
+                file_path = output_path
+            else:
+                # Insert index before file extension
+                stem = output_path.stem
+                suffix = output_path.suffix
+                file_path = output_path.parent / f"{stem}_{i}{suffix}"
+                
+            download_image(url, str(file_path))
+            local_paths.append(str(file_path))
             
         result["local_paths"] = local_paths
     

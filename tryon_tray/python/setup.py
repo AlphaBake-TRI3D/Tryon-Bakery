@@ -5,13 +5,13 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="tryon-tray",
-    version="0.1.2",
-    author="Your Name",
-    author_email="your.email@example.com",
+    version="0.1.5",
+    author="Nitish",
+    author_email="nitish@tri3d.in",
     description="A package for virtual try-on services integration",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/tryon-tray",
+    url="https://github.com/AlphaBake-TRI3D/Tryon-Bakery",
     package_dir={"": "src"},
     packages=find_namespace_packages(where="src", include=["tryon_tray*"]),
     classifiers=[

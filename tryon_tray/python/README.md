@@ -2,9 +2,6 @@
 
 A Python package for virtual try-on services integration, supporting multiple VTON (Virtual Try-On)providers.
 
-## Version
-
-Current version: 0.1.2
 
 ## Installation
 
@@ -16,43 +13,30 @@ pip install tryon-tray
 
 ```python
 # Load environment variables
-env_path = Path(file).parent / ".env"
-load_dotent(env_path)
 
-# Setup paths
-input_dir = "path/to/inputs"
-output_dir = "path/to/outputs"
 
-# Input images
-model_image = str(input_dir / "person.jpg")
-garment_image = str(input_dir / "garment.jpeg")
+from dotenv import load_dotenv
+from tryon_tray.vton_api import VTON
+from datetime import datetime
+load_dotenv()
+model_image = "inputs/person.jpg"
+garment_image = "inputs/garment.jpeg"
 
-# Generate virtual try-on
+#model_list = ["fashnai", "klingai","replicate"] 
 result = VTON(
     model_image=model_image,
     garment_image=garment_image,
-    model_name="fashnai", #  or "klingai" or "replicate"
+    model_name="fashnai", 
     auto_download=True,
-    download_dir=str(output_dir),
-    # Polling configuration
-    polling_interval=1,
+    download_path="result.jpg",
     show_polling_progress=True,
     # Optional parameters
     category="tops",
     mode="quality",
-    adjust_hands=True,
-    restore_background=True
 )
 
-# Access results
-print("\nGenerated image URLs:")
-for url in result["urls"]:
-    print(f"- {url}")
+print("Time taken: ",result['timing']['time_taken'])
 
-
-print("\nDownloaded images:")
-for path in result["local_paths"]:
-    print(f"- {path}")
 ```
 
 ## Features
