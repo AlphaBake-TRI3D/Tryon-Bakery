@@ -1,0 +1,417 @@
+PRODUCT REQUIREMENTS DOCUMENT (PRD) AND CODE GUIDE
+=================================================
+A Unified Cloth-Transfer Python Package
+
+TABLE OF CONTENTS
+-----------------
+1. Introduction
+2. High-Level Requirements
+3. Proposed Architecture
+   3.1 Base Class
+   3.2 Service Implementations
+   3.3 Factory or Registration
+   3.4 High-Level API
+4. Code Patterns & Best Practices
+   4.1 DRY: Common Utilities
+   4.2 Consistent Interface
+   4.3 Polling Patterns
+   4.4 Error Handling
+   4.5 Extensibility
+   4.6 Documentation
+5. Sample Workflow
+   5.1 Setup
+   5.2 Code Example
+   5.3 Execution
+6. Future Extensions
+7. Conclusion
+
+
+1. INTRODUCTION
+---------------
+We plan to build a Python package that offers a unified interface for a variety of virtual try-on (VTON) and cloth-transfer use cases. The package should:
+
+• Allow users to pass in person images and garment images to generate a virtual try-on result.  
+• Abstract away differences between various service providers (Fashn.ai, Replicate, Runway, etc.).  
+• Provide polling or synchronous results, depending on the provider’s API behavior.  
+• Offer both URLs for the generated images and a download-to-disk option for local storage.  
+• Be extensible, so future AI models/services can be added with minimal friction.
+
+TARGET USE CASES:
+• E-commerce: Show customers how garments look on different models.  
+• Cataloging: Quickly generate consistent product imagery.  
+• Content creation for marketing, styling, etc.  
+• Other transformations: Pose transfer, video generation, training APIs (LoRA, etc.).
+
+
+2. HIGH-LEVEL REQUIREMENTS
+--------------------------
+1. Consistent Python Interface  
+   - A top-level function, e.g. VTON(model_image, garment_image, model_name=...), that internally calls the relevant service provider.
+
+2. Authentication & Configuration  
+   - Centralized handling of environment variables (e.g., using dotenv) or direct API key injection for each provider.
+
+3. Input Validation  
+   - Ensure images exist, parameter values (e.g., category) are valid, etc.
+
+4. Async vs. Sync  
+   - Some providers (like Fashn.ai) return a job ID; we must poll.  
+   - Others (like Replicate) appear synchronous from the Python perspective (their SDK blocks until the job is done).
+
+5. Download Mechanism  
+   - Return URLs by default.  
+   - Optionally auto-download images locally if the user requests.
+
+6. Extensibility  
+   - The architecture should allow new service providers to be added without rewriting common logic (authentication, polling, etc.).
+
+
+3. PROPOSED ARCHITECTURE
+------------------------
+Below is a file and module structure following typical Python packaging best practices:
+
+my_vton_package/
+  ├── my_vton_package/
+  │   ├── __init__.py
+  │   ├── base.py              # Contains BaseService or BaseVTON abstract class
+  │   ├── vton_api.py          # Main high-level API function: VTON(...)
+  │   ├── services/
+  │   │   ├── __init__.py
+  │   │   ├── factory.py       # get_vton_service(...) -> returns a service instance
+  │   │   ├── fashnai.py       # FashnaiVTON - extends BaseVTON
+  │   │   ├── replicate.py     # ReplicateVTON - extends BaseVTON
+  │   │   └── # more services...
+  │   ├── utils/
+  │   │   ├── __init__.py
+  │   │   ├── config.py        # Environment variable loading
+  │   │   ├── file_io.py       # image_to_base64, download_image, etc.
+  │   │   ├── validation.py    # Common validation functions (optional)
+  │   └── # other modules...
+  ├── tests/
+  │   └── test_*.py
+  ├── examples/
+  │   ├── run_fashnai_example.py
+  │   ├── run_replicate_example.py
+  │   └── ...
+  ├── README.md
+  ├── setup.py or pyproject.toml
+  └── requirements.txt
+
+3.1 BASE CLASS
+--------------
+In base.py, define an abstract class BaseVTON (or BaseService), which standardizes the following methods:
+• run(): Submits the job to the provider.  
+• poll(): Polls the job until completion or failure.  
+• run_and_wait(): Convenience method that does run() and then poll().
+
+Example (base.py):
+---------------------------------------------
+import time
+from abc import ABC, abstractmethod
+
+class BaseVTON(ABC):
+    def __init__(self, model_image, garment_image, **kwargs):
+        self.model_image = model_image
+        self.garment_image = garment_image
+        self.api_key = kwargs.get("api_key")
+        self.status = "initialized"
+        self.prediction_id = None
+        self.result_data = None
+        self.params = kwargs
+
+    @abstractmethod
+    def run(self):
+        """ Kick off the ML job. Return a job/prediction ID or store it internally. """
+        pass
+
+    @abstractmethod
+    def poll(self, max_attempts=60, delay=5):
+        """
+        Check the job status until completion or failure.
+        Once completed, set self.result_data to the final output (e.g. list of URLs).
+        """
+        pass
+
+    def run_and_wait(self, max_attempts=60, delay=5):
+        """ Convenience method to do run + poll in one go. """
+        self.run()
+        self.poll(max_attempts, delay)
+        return self.result_data
+---------------------------------------------
+
+3.2 SERVICE IMPLEMENTATIONS
+---------------------------
+Fashn.ai (asynchronous, ID-based polling):
+
+---------------------------------------------
+# services/fashnai.py
+
+import requests
+import time
+import os
+from my_vton_package.base import BaseVTON
+from my_vton_package.utils.file_io import image_to_base64
+from my_vton_package.utils.config import get_fashnai_api_key
+
+class FashnaiVTON(BaseVTON):
+    BASE_URL = "https://api.fashn.ai/v1"
+
+    def __init__(self, model_image, garment_image, **kwargs):
+        super().__init__(model_image, garment_image, **kwargs)
+        if not self.api_key:
+            self.api_key = get_fashnai_api_key()  # from environment
+        self.headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json"
+        }
+
+    def run(self):
+        payload = {
+            "model_image": image_to_base64(self.model_image),
+            "garment_image": image_to_base64(self.garment_image),
+            "category": self.params.get("category", "tops"),
+            # ... other fields ...
+        }
+        resp = requests.post(f"{self.BASE_URL}/run", headers=self.headers, json=payload)
+        resp.raise_for_status()
+        data = resp.json()
+        self.prediction_id = data["id"]
+        self.status = "processing"
+        return self.prediction_id
+
+    def poll(self, max_attempts=60, delay=5):
+        for _ in range(max_attempts):
+            resp = requests.get(f"{self.BASE_URL}/status/{self.prediction_id}", headers=self.headers)
+            resp.raise_for_status()
+            data = resp.json()
+            if data["status"] == "completed":
+                self.status = "completed"
+                self.result_data = data["output"]  # list of URLs
+                return self.result_data
+            elif data["status"] == "failed":
+                self.status = "failed"
+                raise Exception(f"Prediction failed: {data.get('error')}")
+            time.sleep(delay)
+        self.status = "timeout"
+        raise TimeoutError("Fashn.ai polling timed out.")
+---------------------------------------------
+
+Replicate (synchronous from the user’s perspective):
+
+---------------------------------------------
+# services/replicate.py
+
+import replicate
+from my_vton_package.base import BaseVTON
+from my_vton_package.utils.config import get_replicate_api_key
+
+class ReplicateVTON(BaseVTON):
+    def __init__(self, model_image, garment_image, **kwargs):
+        super().__init__(model_image, garment_image, **kwargs)
+        if not self.api_key:
+            self.api_key = get_replicate_api_key()
+        replicate.client.api_token = self.api_key
+
+    def run(self):
+        # This call blocks until the result is ready
+        output = replicate.run(
+            "cuuupid/idm-vton:c871bb9b046607b...",  # example
+            input={
+                "human_img": self.model_image, 
+                "garm_img": self.garment_image,
+                # ...other parameters...
+            }
+        )
+        self.result_data = output  # e.g. might be a URL or a file object
+        self.status = "completed"
+        return self.result_data
+
+    def poll(self, max_attempts=60, delay=5):
+        # Nothing to poll because run() already blocks
+        if self.status != "completed":
+            raise Exception("Replicate job is not completed as expected.")
+        return self.result_data
+---------------------------------------------
+
+3.3 FACTORY OR REGISTRATION
+---------------------------
+A “factory” method to instantiate the correct service based on model_name:
+
+---------------------------------------------
+# services/factory.py
+
+from my_vton_package.services.fashnai import FashnaiVTON
+from my_vton_package.services.replicate import ReplicateVTON
+# ...other imports...
+
+def get_vton_service(model_name, **kwargs):
+    model_name = model_name.lower()
+    if model_name == "fashnai":
+        return FashnaiVTON(**kwargs)
+    elif model_name == "replicate":
+        return ReplicateVTON(**kwargs)
+    # add more as you expand ...
+    raise ValueError(f"Unknown VTON model_name: {model_name}")
+---------------------------------------------
+
+3.4 HIGH-LEVEL API
+------------------
+In vton_api.py, provide a single function VTON(...) that is user-friendly:
+
+---------------------------------------------
+# vton_api.py
+
+from my_vton_package.services.factory import get_vton_service
+from my_vton_package.utils.file_io import download_images
+
+def VTON(model_image, garment_image, model_name="fashnai", auto_download=False, download_dir="outputs", **kwargs):
+    """
+    A single entry point for Virtual Try-On. 
+    model_image: path or URL of the person image
+    garment_image: path or URL of the garment image
+    model_name: which backend to use ("fashnai", "replicate", etc.)
+    auto_download: if True, auto-download the result images
+    download_dir: local dir where images will be saved if auto_download=True
+    """
+    service = get_vton_service(
+        model_name=model_name,
+        model_image=model_image,
+        garment_image=garment_image,
+        **kwargs
+    )
+
+    # Run + poll in one line
+    final_result = service.run_and_wait()
+
+    # final_result typically is a list of URLs
+    if auto_download and isinstance(final_result, list):
+        local_paths = download_images(final_result, output_dir=download_dir, prefix=model_name)
+        return {
+            "urls": final_result,
+            "local_paths": local_paths
+        }
+    return {"urls": final_result}
+---------------------------------------------
+
+
+4. CODE PATTERNS & BEST PRACTICES
+---------------------------------
+4.1 DRY: COMMON UTILITIES
+• utils/config.py:  
+  - Centralize environment variable loading. For example:
+
+------------------------------------------------
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+def get_fashnai_api_key():
+    key = os.getenv("FASHNAI_API_KEY")
+    if not key:
+        raise ValueError("FASHNAI_API_KEY not set")
+    return key
+
+def get_replicate_api_key():
+    key = os.getenv("REPLICATE_API_KEY")
+    if not key:
+        raise ValueError("REPLICATE_API_KEY not set")
+    return key
+------------------------------------------------
+
+• utils/file_io.py:  
+  - Convert images to base64 if needed.  
+  - Download images from a URL to a local path.
+
+4.2 CONSISTENT INTERFACE
+• Every service implements run(), poll(), and returns result_data in the same format (e.g., a list of image URLs).  
+• Even if a service is fully synchronous, it still has a no-op poll() for consistent usage.
+
+4.3 POLLING PATTERNS
+• For async services, poll in intervals (time.sleep(delay)) up to max_attempts.  
+• For sync services, poll() can be a no-op.
+
+4.4 ERROR HANDLING
+• Use Python exceptions (raise Exception(...), raise TimeoutError(...)) for clear error states.  
+• Provide meaningful error messages (“Job failed: ...”).
+
+4.5 EXTENSIBILITY
+• Adding a new model or service = implementing a new subclass of BaseVTON + hooking it in the factory with a model_name keyword.
+
+4.6 DOCUMENTATION
+• Docstrings at each method clarify usage and parameters.  
+• Show example code in examples/ for typical workflows.
+
+
+5. SAMPLE WORKFLOW
+------------------
+5.1 SETUP
+---------
+1. Install your package (e.g., pip install -e . if local).  
+2. Set environment variables:
+   export FASHNAI_API_KEY="xxxx"
+   export REPLICATE_API_KEY="yyyy"
+
+   Or define them in a .env file in the project root.
+
+5.2 CODE EXAMPLE
+----------------
+---------------------------------------------
+# example_user_script.py
+
+from my_vton_package.vton_api import VTON
+
+def main():
+    # Minimal usage (URLs only)
+    result = VTON(
+        model_image="person.jpg",
+        garment_image="garment.jpg",
+        model_name="fashnai"
+    )
+    print("Fashnai output URLs:", result["urls"])
+
+    # Download usage
+    replicate_result = VTON(
+        model_image="https://some.url/person.png",
+        garment_image="https://some.url/garment.png",
+        model_name="replicate",
+        auto_download=True,
+        download_dir="outputs"
+    )
+    print("Replicate output URLs:", replicate_result["urls"])
+    print("Local file paths:", replicate_result["local_paths"])
+
+if __name__ == "__main__":
+    main()
+---------------------------------------------
+
+5.3 EXECUTION
+-------------
+FASHNAI_API_KEY=xxxx REPLICATE_API_KEY=yyyy python example_user_script.py
+
+
+6. FUTURE EXTENSIONS
+--------------------
+• Pose Transfer  
+  - Same pattern: implement a PoseTransferService that extends BaseVTON (or BaseModel).  
+• Video Generation  
+  - Possibly large job times, so polling is crucial.  
+  - Return either video URLs or local downloads if needed.  
+• Training APIs (LoRA, fine-tuning, etc.)  
+  - Might require more parameters (dataset, hyperparameters).  
+  - Still can maintain run() + poll() structure if the training is asynchronous.
+
+
+7. CONCLUSION
+-------------
+This package design ensures:
+• Consistent user experience across different AI providers.  
+• Minimal duplication of code for polling, error handling, environment setup, etc.  
+• Extensibility for new features like pose transfer, video generation, or other cloth-transfer tasks.
+
+KEY TAKEAWAYS:
+• Use a Base Class (BaseVTON) that enforces a standard interface.  
+• Have a Factory to instantiate the right service by model_name.  
+• Provide a High-Level Function (VTON(...)) that’s easy to use for most developers.  
+• Allow auto-download or just return URLs so the end user can decide how to consume results.
+
+With this PRD and code guide, developers or coding agents can effectively implement, maintain, and extend the codebase for all cloth-transfer and similar AI tasks.

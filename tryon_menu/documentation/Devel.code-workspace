@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "../../../../devel/one-punch-tracker"
+		},
+		{
+			"path": "../../../AlphaBake-Loras"
+		},
+		{
+			"path": "../../../../devel/pilerror"
+		},
+		{
+			"path": "../.."
+		}
+	],
+	"settings": {}
+}

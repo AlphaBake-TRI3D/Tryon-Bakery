@@ -20,74 +20,17 @@ wheels/
 .installed.cfg
 *.egg
 
-# Django
-*.log
-*.pot
-*.pyc
-db.sqlite3
-media/
-staticfiles/
-
-# Virtual Environment
-venv/
-ENV/
-env/
+# Environment
 .env
 .venv
+env/
+venv/
+ENV/
 
-# IDE - VSCode
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-*.code-workspace
-
-# IDE - PyCharm
+# IDE
 .idea/
-*.iml
-*.iws
-.idea_modules/
+.vscode/
 
-# IDE - Sublime Text
-*.sublime-workspace
-*.sublime-project
-
-# macOS
 .DS_Store
-.AppleDouble
-.LSOverride
-._*
+staticfiles/
 
-# Thumbnails
-._*
-
-# Files that might appear in the root of a volume
-.DocumentRevisions-V100
-.fseventsd
-.Spotlight-V100
-.TemporaryItems
-.Trashes
-.VolumeIcon.icns
-.com.apple.timemachine.donotpresent
-
-# Project specific - only ignore contents of input/output directories
-tryon_menu/main/static/inputs/garments/*
-!tryon_menu/main/static/inputs/garments/.gitkeep
-!tryon_menu/main/static/inputs/garments/GfPWMBQXIAAFRZ1.jpeg
-
-tryon_menu/main/static/inputs/models/*
-!tryon_menu/main/static/inputs/models/.gitkeep
-!tryon_menu/main/static/inputs/models/00008_00.jpg
-
-tryon_menu/main/static/inputs/inputsets/*
-!tryon_menu/main/static/inputs/inputsets/.gitkeep
-
-tryon_menu/main/static/outputs/tryons/*
-!tryon_menu/main/static/outputs/tryons/.gitkeep
-!tryon_menu/main/static/outputs/tryons/FashnAI.png
-!tryon_menu/main/static/outputs/tryons/KlingAI.png
-!tryon_menu/main/static/outputs/tryons/OpenFlux.png
-
-tryon_menu/main/static/outputs/tryonBatches/*
-!tryon_menu/main/static/outputs/tryonBatches/.gitkeep 
