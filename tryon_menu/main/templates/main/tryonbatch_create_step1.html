@@ -1,0 +1,167 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="batch-create-container">
+    <h2>Create Tryon Batch - Step 1</h2>
+    <form method="post" class="batch-form">
+        {% csrf_token %}
+        {% if error %}
+        <div class="alert alert-error">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <div class="form-group">
+            <label for="name">Batch Name:</label>
+            <input type="text" id="name" name="name" required class="form-control">
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" class="form-control"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="input_set">Select Input Set:</label>
+            <select id="input_set" name="input_set" required class="form-control">
+                <option value="">Select an Input Set</option>
+                {% for input_set in input_sets %}
+                <div class="input-set-option">
+                    <option value="{{ input_set.id }}">
+                        {{ input_set.name }} (Created by: {{ input_set.created_by.username }})
+                    </option>
+                </div>
+                {% endfor %}
+            </select>
+            <div id="input_set_preview" class="preview-container"></div>
+        </div>
+
+        <div class="form-group">
+            <label>Select Model Versions:</label>
+            <div class="model-versions-grid">
+                {% for version in model_versions %}
+                <div class="model-version-card">
+                    <input type="checkbox" 
+                           id="model_version_{{ version.id }}" 
+                           name="model_versions" 
+                           value="{{ version.id }}"
+                           class="model-version-checkbox">
+                    <label for="model_version_{{ version.id }}" class="model-version-label">
+                        <div class="model-version-info">
+                            <h4>{{ version.model.name }}</h4>
+                            <p>Version: {{ version.version }}</p>
+                            <p>Resolution: {{ version.resolution }}px</p>
+                            {% if version.description %}
+                            <p class="description">{{ version.description }}</p>
+                            {% endif %}
+                        </div>
+                    </label>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <button type="submit" class="btn-primary">Next Step</button>
+    </form>
+</div>
+
+<style>
+    .batch-create-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .batch-form {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .model-versions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 15px;
+        margin-top: 10px;
+    }
+
+    .model-version-card {
+        position: relative;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        overflow: hidden;
+    }
+
+    .model-version-checkbox {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 20px;
+        height: 20px;
+        z-index: 1;
+    }
+
+    .model-version-label {
+        display: block;
+        padding: 15px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .model-version-label:hover {
+        background-color: #f5f5f5;
+    }
+
+    .model-version-info h4 {
+        margin: 0 0 10px 0;
+        color: #333;
+    }
+
+    .model-version-info p {
+        margin: 5px 0;
+        color: #666;
+        font-size: 0.9em;
+    }
+
+    .description {
+        font-style: italic;
+        color: #777;
+    }
+
+    .preview-container {
+        margin-top: 10px;
+        display: flex;
+        gap: 10px;
+    }
+
+    .preview-container img {
+        max-width: 150px;
+        max-height: 150px;
+        object-fit: contain;
+        border-radius: 4px;
+    }
+</style>
+
+<script>
+    // Add input set preview functionality
+    document.getElementById('input_set').addEventListener('change', function() {
+        const inputSetId = this.value;
+        const previewContainer = document.getElementById('input_set_preview');
+        
+        if (inputSetId) {
+            fetch(`/api/inputset/${inputSetId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    previewContainer.innerHTML = `
+                        <img src="${data.garment_thumbnail_url || data.garment_image}" alt="Garment">
+                        <img src="${data.model_thumbnail_url || data.model_image}" alt="Model">
+                    `;
+                });
+        } else {
+            previewContainer.innerHTML = '';
+        }
+    });
+</script>
+{% endblock %} 

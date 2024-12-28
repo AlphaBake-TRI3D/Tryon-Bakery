@@ -1,0 +1,94 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <h2>Model Version Details</h2>
+            
+            {% if can_edit %}
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="post" id="editForm" style="display: none;">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="version" class="form-label">Version</label>
+                            <input type="text" class="form-control" id="version" name="version" value="{{ model_version.version }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="resolution" class="form-label">Resolution</label>
+                            <input type="number" class="form-control" id="resolution" name="resolution" value="{{ model_version.resolution }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="3">{{ model_version.description }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="model_url" class="form-label">Model URL</label>
+                            <input type="url" class="form-control" id="model_url" name="model_url" value="{{ model_version.model.url }}">
+                            <small class="text-muted">URL to the model's documentation or source</small>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <button type="button" class="btn btn-secondary" onclick="toggleEdit()">Cancel</button>
+                    </form>
+                    
+                    <div id="viewMode">
+                        <button type="button" class="btn btn-primary float-end" onclick="toggleEdit()">Edit</button>
+                        <h5>Details</h5>
+                        <p><strong>Version:</strong> {{ model_version.version }}</p>
+                        <p><strong>Resolution:</strong> {{ model_version.resolution }}px</p>
+                        <p><strong>Description:</strong> {{ model_version.description|default:"No description provided" }}</p>
+                        <p><strong>Model:</strong> {{ model_version.model.name }}</p>
+                        <p><strong>Organization:</strong> {{ model_version.model.organization.name }}</p>
+                        <p>
+                            <strong>Model URL:</strong> 
+                            {% if model_version.model.url %}
+                                <a href="{{ model_version.model.url }}" target="_blank">{{ model_version.model.url }}</a>
+                            {% else %}
+                                Not provided
+                            {% endif %}
+                        </p>
+                        <p><strong>Created:</strong> {{ model_version.created_at|date:"Y-m-d H:i" }}</p>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5>Details</h5>
+                    <p><strong>Version:</strong> {{ model_version.version }}</p>
+                    <p><strong>Resolution:</strong> {{ model_version.resolution }}px</p>
+                    <p><strong>Description:</strong> {{ model_version.description|default:"No description provided" }}</p>
+                    <p><strong>Model:</strong> {{ model_version.model.name }}</p>
+                    <p><strong>Organization:</strong> {{ model_version.model.organization.name }}</p>
+                    <p>
+                        <strong>Model URL:</strong> 
+                        {% if model_version.model.url %}
+                            <a href="{{ model_version.model.url }}" target="_blank">{{ model_version.model.url }}</a>
+                        {% else %}
+                            Not provided
+                        {% endif %}
+                    </p>
+                    <p><strong>Created:</strong> {{ model_version.created_at|date:"Y-m-d H:i" }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleEdit() {
+    const viewMode = document.getElementById('viewMode');
+    const editForm = document.getElementById('editForm');
+    
+    if (viewMode.style.display !== 'none') {
+        viewMode.style.display = 'none';
+        editForm.style.display = 'block';
+    } else {
+        viewMode.style.display = 'block';
+        editForm.style.display = 'none';
+    }
+}
+</script>
+{% endblock %} 

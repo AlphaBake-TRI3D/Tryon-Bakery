@@ -1,0 +1,202 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="detail-container">
+    <div class="detail-header">
+        <h2>{{ inputset.name }}</h2>
+        <div class="meta-info">
+            <p>Created by: {{ inputset.created_by.username }}</p>
+            <p>Created on: {{ inputset.created_at|date:"M d, Y" }}</p>
+        </div>
+    </div>
+
+    <div class="images-container">
+        <div class="image-card">
+            <h3>Garment Image</h3>
+            <div class="image-wrapper" onclick="openModal('{{ inputset.garment_image }}')">
+                <img src="{{ inputset.garment_thumbnail_url|default:inputset.garment_image }}" alt="Garment" class="thumbnail">
+                <div class="image-overlay">
+                    <span>Click to view full size</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="image-card">
+            <h3>Model Image</h3>
+            <div class="image-wrapper" onclick="openModal('{{ inputset.model_image }}')">
+                <img src="{{ inputset.model_thumbnail_url|default:inputset.model_image }}" alt="Model" class="thumbnail">
+                <div class="image-overlay">
+                    <span>Click to view full size</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div id="imageModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img id="modalImage" src="" alt="Full size image">
+    </div>
+</div>
+
+<style>
+    .detail-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .detail-header {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .detail-header h2 {
+        margin: 0 0 10px 0;
+        color: #333;
+    }
+
+    .meta-info {
+        color: #666;
+        font-size: 0.9em;
+    }
+
+    .meta-info p {
+        margin: 5px 0;
+    }
+
+    .images-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+    }
+
+    .image-card {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .image-card h3 {
+        margin: 0 0 15px 0;
+        color: #333;
+    }
+
+    .image-wrapper {
+        position: relative;
+        cursor: pointer;
+    }
+
+    .thumbnail {
+        width: 100%;
+        height: 600px;
+        object-fit: contain;
+        border-radius: 4px;
+        transition: transform 0.2s;
+    }
+
+    .image-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s;
+        border-radius: 4px;
+    }
+
+    .image-overlay span {
+        color: white;
+        font-weight: 500;
+    }
+
+    .image-wrapper:hover .image-overlay {
+        opacity: 1;
+    }
+
+    /* Modal styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1001;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.9);
+    }
+
+    .modal-content {
+        position: relative;
+        margin: auto;
+        padding: 20px;
+        width: 90%;
+        max-width: 1200px;
+        height: 90vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #modalImage {
+        max-width: 100%;
+        max-height: 600px;
+        object-fit: contain;
+    }
+
+    .close {
+        position: absolute;
+        right: 25px;
+        top: 0;
+        color: #f1f1f1;
+        font-size: 35px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .close:hover {
+        color: #bbb;
+    }
+</style>
+
+<script>
+    function openModal(imageUrl) {
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('modalImage');
+        modal.style.display = "block";
+        modalImg.src = imageUrl;
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('imageModal');
+        modal.style.display = "none";
+    }
+
+    // Close modal when clicking outside the image
+    window.onclick = function(event) {
+        const modal = document.getElementById('imageModal');
+        if (event.target == modal) {
+            closeModal();
+        }
+    }
+
+    // Close modal with escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === "Escape") {
+            closeModal();
+        }
+    });
+</script>
+{% endblock %} 

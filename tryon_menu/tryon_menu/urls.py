@@ -16,14 +16,10 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path
-from django.conf import settings
-from django.conf.urls.static import static
-from main import views
+from django.urls import path, include
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
-    path("", views.index_view, name="index"),
-    path("comparison/", views.comparison_view, name="comparison"),
-    path("comparison/<int:batch_id>/", views.comparison_view, name="comparison"),
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    path('admin/', admin.site.urls),
+    path('accounts/', include('django.contrib.auth.urls')),  # Add Django auth URLs
+    path('', include('main.urls')),  # Include main app URLs
+]

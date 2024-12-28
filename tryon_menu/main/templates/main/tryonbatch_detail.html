@@ -1,0 +1,245 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="batch-detail-container">
+    <div class="batch-header">
+        <div class="batch-info">
+            <h2>{{ batch.name }}</h2>
+            {% if batch.description %}
+            <p class="description">{{ batch.description }}</p>
+            {% endif %}
+            <p class="meta">Created on: {{ batch.created_at|date:"M d, Y" }}</p>
+        </div>
+    </div>
+
+    <div class="comparison-grid">
+        <!-- Input Set Images -->
+        <div class="input-images">
+            <div class="image-container">
+                <h4>Garment Image</h4>
+                <img src="{{ input_set.garment_image }}" alt="Garment" onclick="openModal(this.src)">
+            </div>
+            <div class="image-container">
+                <h4>Model Image</h4>
+                <img src="{{ input_set.model_image }}" alt="Model" onclick="openModal(this.src)">
+            </div>
+        </div>
+
+        <!-- Tryon Results -->
+        <div class="results-grid">
+            {% for tryon in tryons %}
+            <div class="result-card">
+                <div class="result-header">
+                    <h4>{{ tryon.model_version.model.name }}</h4>
+                    <p>Version: {{ tryon.model_version.version }}</p>
+                    <p>Resolution: {{ tryon.model_version.resolution }}px</p>
+                </div>
+                <div class="result-image">
+                    <img src="{{ tryon.image_path }}" alt="Tryon Result" onclick="openModal(this.src)">
+                </div>
+                {% if tryon.notes.user_notes %}
+                <div class="result-notes">
+                    <p>{{ tryon.notes.user_notes }}</p>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div id="imageModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img id="modalImage" src="" alt="Full size image">
+    </div>
+</div>
+
+<style>
+    .batch-detail-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .batch-header {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+
+    .batch-info h2 {
+        margin: 0 0 10px 0;
+    }
+
+    .description {
+        color: #666;
+        font-style: italic;
+        margin: 10px 0;
+    }
+
+    .meta {
+        color: #666;
+        font-size: 0.9em;
+    }
+
+    .comparison-grid {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 20px;
+    }
+
+    .input-images {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .image-container {
+        margin-bottom: 20px;
+    }
+
+    .image-container h4 {
+        margin: 0 0 10px 0;
+    }
+
+    .image-container img {
+        width: 100%;
+        height: 300px;
+        object-fit: contain;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .image-container img:hover {
+        transform: scale(1.05);
+    }
+
+    .results-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+    }
+
+    .result-card {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .result-header {
+        margin-bottom: 15px;
+    }
+
+    .result-header h4 {
+        margin: 0 0 5px 0;
+    }
+
+    .result-header p {
+        margin: 3px 0;
+        color: #666;
+        font-size: 0.9em;
+    }
+
+    .result-image img {
+        width: 100%;
+        height: 400px;
+        object-fit: contain;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .result-image img:hover {
+        transform: scale(1.05);
+    }
+
+    .result-notes {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #eee;
+        color: #666;
+        font-size: 0.9em;
+    }
+
+    /* Modal styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1001;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.9);
+    }
+
+    .modal-content {
+        position: relative;
+        margin: auto;
+        padding: 20px;
+        width: 90%;
+        max-width: 1200px;
+        height: 90vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #modalImage {
+        max-width: 100%;
+        max-height: 90vh;
+        object-fit: contain;
+    }
+
+    .close {
+        position: absolute;
+        right: 25px;
+        top: 0;
+        color: #f1f1f1;
+        font-size: 35px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .close:hover {
+        color: #bbb;
+    }
+</style>
+
+<script>
+    function openModal(imageUrl) {
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('modalImage');
+        modal.style.display = "block";
+        modalImg.src = imageUrl;
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('imageModal');
+        modal.style.display = "none";
+    }
+
+    // Close modal when clicking outside the image
+    window.onclick = function(event) {
+        const modal = document.getElementById('imageModal');
+        if (event.target == modal) {
+            closeModal();
+        }
+    }
+
+    // Close modal with escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === "Escape") {
+            closeModal();
+        }
+    });
+</script>
+{% endblock %} 

@@ -1,145 +1,143 @@
+{% extends 'main/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tryon Comparisons</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #f5f5f5;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
 
-        .header {
-            text-align: center;
-            padding: 40px 20px;
-            background-color: #fff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-        }
-
-        .header h1 {
-            margin: 0;
-            color: #333;
-            font-size: 2.5em;
-        }
-
-        .header p {
-            margin: 10px 0 0;
-            color: #666;
-            font-size: 1.1em;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        .batch-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            padding: 20px 0;
-        }
-
-        .batch-card {
-            background: #fff;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-            cursor: pointer;
-            text-decoration: none;
-            color: inherit;
-            display: block;
-        }
-
-        .batch-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
-
-        .batch-card h2 {
-            margin: 0 0 10px 0;
-            color: #333;
-            font-size: 1.5em;
-        }
-
-        .batch-card p {
-            margin: 0;
-            color: #666;
-            line-height: 1.5;
-        }
-
-        .batch-meta {
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #eee;
-            font-size: 0.9em;
-            color: #888;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .batch-count {
-            background: #f0f0f0;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.9em;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: #666;
-        }
-
-        @media (max-width: 768px) {
-            .header {
-                padding: 20px;
-            }
-
-            .header h1 {
-                font-size: 2em;
-            }
-
-            .batch-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>Tryon Comparisons</h1>
-        <p>Browse and compare different AI model results</p>
-    </div>
-
-    <div class="container">
-        {% if batches %}
-        <div class="batch-grid">
-            {% for batch in batches %}
-            <a href="{% url 'comparison' batch.id %}" class="batch-card">
-                <h2>{{ batch.name }}</h2>
-                <p>{{ batch.description|truncatewords:30 }}</p>
-                <div class="batch-meta">
-                    <span>{{ batch.created_at|date:"M d, Y" }}</span>
-                    <span class="batch-count">{{ batch.tryons.count }} models</span>
+{% block content %}
+<div class="container">
+    <h2>Recent Tryon Batches</h2>
+    <div class="batch-grid">
+        {% for batch in batches %}
+        <div class="batch-card">
+            <div class="batch-header">
+                <h3>{{ batch.name }}</h3>
+                <p class="meta">Created on: {{ batch.created_at|date:"M d, Y" }}</p>
+            </div>
+            {% if batch.description %}
+            <p class="description">{{ batch.description }}</p>
+            {% endif %}
+            
+            {% with first_tryon=batch.tryons.first %}
+            {% if first_tryon %}
+            <div class="images-grid">
+                <div class="input-images">
+                    <div class="thumbnail">
+                        <img src="{{ first_tryon.input_set.garment_thumbnail_url|default:first_tryon.input_set.garment_image }}" alt="Garment">
+                        <span>Garment</span>
+                    </div>
+                    <div class="thumbnail">
+                        <img src="{{ first_tryon.input_set.model_thumbnail_url|default:first_tryon.input_set.model_image }}" alt="Model">
+                        <span>Model</span>
+                    </div>
                 </div>
-            </a>
-            {% endfor %}
+                <div class="result-image">
+                    <img src="{{ first_tryon.thumbnail_url|default:first_tryon.image_path }}" alt="Tryon Result">
+                    <span>Result</span>
+                </div>
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            <div class="batch-actions">
+                <a href="{% url 'tryonbatch_detail' batch.id %}" class="btn-primary">View Details</a>
+            </div>
         </div>
-        {% else %}
-        <div class="empty-state">
-            <h2>No comparisons available</h2>
-            <p>There are no tryon comparisons in the database yet.</p>
-        </div>
-        {% endif %}
+        {% empty %}
+        <p>No tryon batches found.</p>
+        {% endfor %}
     </div>
-</body>
-</html> 
+</div>
+
+<style>
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .batch-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .batch-card {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .batch-header h3 {
+        margin: 0 0 10px 0;
+    }
+
+    .meta {
+        color: #666;
+        font-size: 0.9em;
+        margin: 5px 0;
+    }
+
+    .description {
+        color: #666;
+        font-style: italic;
+        margin: 10px 0;
+    }
+
+    .images-grid {
+        margin: 15px 0;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    .input-images {
+        display: flex;
+        gap: 10px;
+    }
+
+    .thumbnail {
+        flex: 1;
+        text-align: center;
+    }
+
+    .thumbnail img, .result-image img {
+        width: 100%;
+        height: 150px;
+        object-fit: contain;
+        border-radius: 4px;
+        border: 1px solid #eee;
+        background: #f9f9f9;
+    }
+
+    .thumbnail span, .result-image span {
+        display: block;
+        margin-top: 5px;
+        font-size: 0.8em;
+        color: #666;
+    }
+
+    .result-image {
+        text-align: center;
+    }
+
+    .batch-actions {
+        margin-top: 15px;
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn-primary {
+        display: inline-block;
+        padding: 8px 16px;
+        background-color: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+</style>
+{% endblock %} 

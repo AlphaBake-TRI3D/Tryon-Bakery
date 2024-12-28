@@ -1,0 +1,5 @@
+# Rename this file to aws_constants.py and fill in your AWS credentials
+AWS_ACCESS_KEY_ID = 'YOUR_AWS_ACCESS_KEY_ID'
+AWS_SECRET_ACCESS_KEY = 'YOUR_AWS_SECRET_ACCESS_KEY'
+AWS_STORAGE_BUCKET_NAME = 'your-s3-bucket-name'
+AWS_S3_REGION_NAME = 'us-east-1'  # Change this to your bucket's region 

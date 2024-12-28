@@ -1,0 +1,145 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="container-fluid p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Rankings</h2>
+        <div class="btn-group">
+            <a href="?tab=my" class="btn btn-outline-primary {% if active_tab == 'my' %}active{% endif %}">My Rankings</a>
+            <a href="?tab=all" class="btn btn-outline-primary {% if active_tab == 'all' %}active{% endif %}">All Rankings</a>
+        </div>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th style="width: 15%">Batch</th>
+                    <th style="width: 15%">Ranked By</th>
+                    <th style="width: 20%">Winner</th>
+                    <th style="width: 20%">Loser</th>
+                    <th style="width: 15%">Notes</th>
+                    <th style="width: 10%">Ranked At</th>
+                    <th style="width: 5%">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ranking in page_obj %}
+                <tr>
+                    <td>{{ ranking.tryon_batch.name }}</td>
+                    <td>{{ ranking.user.username }}</td>
+                    <td>
+                        <strong>{{ ranking.winner_tryon.model_version.model.name }}</strong>
+                        v{{ ranking.winner_tryon.model_version.version }}
+                        {% if ranking.winner_rating_before %}
+                        <div class="small text-muted">
+                            Rating: {{ ranking.winner_rating_before }} → {{ ranking.winner_rating_after }}
+                            <span class="text-success">(+{{ ranking.winner_rating_change }})</span>
+                        </div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <strong>{{ ranking.loser_tryon.model_version.model.name }}</strong>
+                        v{{ ranking.loser_tryon.model_version.version }}
+                        {% if ranking.loser_rating_before %}
+                        <div class="small text-muted">
+                            Rating: {{ ranking.loser_rating_before }} → {{ ranking.loser_rating_after }}
+                            <span class="text-danger">({{ ranking.loser_rating_change }})</span>
+                        </div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if ranking.notes %}
+                        <div class="text-muted" style="white-space: pre-wrap;">{{ ranking.notes }}</div>
+                        {% else %}
+                        <span class="text-muted">-</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ ranking.created_at|date:"Y-m-d H:i" }}</td>
+                    <td>
+                        {% if ranking.user == request.user %}
+                        <form method="post" action="{% url 'delete_ranking' ranking.id %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this ranking?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center">No rankings found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.paginator.num_pages > 1 %}
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?tab={{ active_tab }}&page={{ page_obj.previous_page_number }}">&laquo; Previous</a>
+            </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?tab={{ active_tab }}&page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?tab={{ active_tab }}&page={{ page_obj.next_page_number }}">Next &raquo;</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<style>
+.table {
+    margin-bottom: 0;
+}
+.table th {
+    background-color: #f8f9fa;
+    border-top: none;
+    padding: 1rem;
+}
+.table td {
+    padding: 1rem;
+    vertical-align: middle;
+}
+.btn-group {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border-radius: 4px;
+}
+.btn-group .btn {
+    border: 1px solid #dee2e6;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+}
+.btn-group .btn:first-child {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+.btn-group .btn:last-child {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+.btn-group .btn.active {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: white;
+}
+</style>
+{% endblock %} 
