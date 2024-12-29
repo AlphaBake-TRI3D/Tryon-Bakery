@@ -16,10 +16,10 @@ from tryon_menu.aws_constants import (
     AWS_S3_REGION_NAME
 )
 from django.core.paginator import Paginator
+from io import BytesIO
 
 def index_view(request):
-    batches = TryonBatch.objects.all().order_by('-created_at')
-    return render(request, 'main/index.html', {'batches': batches})
+    return redirect('modelversion_list')
 
 @login_required
 def comparison_view(request, batch_id):
@@ -270,6 +270,7 @@ def create_tryonbatch_step1(request):
 
 @login_required
 def create_tryonbatch_step2(request):
+    from main.utils import generate_tryon_via_api
     # Get data from session
     tryonbatch_data = request.session.get('tryonbatch_data')
     if not tryonbatch_data:
@@ -294,39 +295,79 @@ def create_tryonbatch_step2(request):
                 region_name=AWS_S3_REGION_NAME
             )
             
-            # Process each tryon image
+            # Process each model version
             for model_version in model_versions:
-                image_key = f'model_version_{model_version.id}'
-                if image_key in request.FILES:
-                    image = request.FILES[image_key]
-                    notes = request.POST.get(f'notes_{model_version.id}', '')
-                    
-                    # Create thumbnail
-                    image.seek(0)
-                    thumbnail = create_thumbnail(image)
-                    image.seek(0)
-                    
-                    # Generate unique filenames
-                    timestamp = uuid.uuid4().hex[:8]
-                    image_ext = image.name.split('.')[-1]
-                    
-                    # Create S3 keys
-                    image_key = f'tryons/{timestamp}_{batch.name}_{model_version.id}.{image_ext}'
-                    thumb_key = f'thumbnails/tryons/{timestamp}_{batch.name}_{model_version.id}_thumb.{image_ext}'
-                    
-                    # Upload to S3
-                    s3_client.upload_fileobj(image, AWS_STORAGE_BUCKET_NAME, image_key)
-                    s3_client.upload_fileobj(thumbnail, AWS_STORAGE_BUCKET_NAME, thumb_key)
-                    
-                    # Create Tryon object
-                    tryon = Tryon.objects.create(
-                        input_set=input_set,
-                        model_version=model_version,
-                        image_key=image_key,
-                        thumb_key=thumb_key,
-                        notes={'user_notes': notes}
-                    )
-                    batch.tryons.add(tryon)
+                if model_version.is_api_implemented:
+                    # Use API to generate tryon
+                    try:
+                        image_key, thumb_key, resolution, time_taken = generate_tryon_via_api(input_set, model_version, s3_client)
+                        
+                        # Create Tryon object with API results
+                        tryon = Tryon.objects.create(
+                            input_set=input_set,
+                            model_version=model_version,
+                            image_key=image_key,
+                            thumb_key=thumb_key,
+                            is_generated_by_api=True,
+                            time_taken=time_taken,
+                            resolution=resolution,
+                            price_per_inference=model_version.price_per_inference,
+                            notes=""  # Empty string for text field
+                        )
+                        batch.tryons.add(tryon)
+                    except Exception as e:
+                        # Log the error but continue with other models
+                        print(f"API error for {model_version}: {str(e)}")
+                        continue
+                else:
+                    # Handle manual upload
+                    image_key = f'model_version_{model_version.id}'
+                    if image_key in request.FILES:
+                        image = request.FILES[image_key]
+                        notes = request.POST.get(f'notes_{model_version.id}', '')  # Get notes from form
+                        
+                        # Create thumbnail and get resolution
+                        image.seek(0)
+                        with Image.open(image) as img:
+                            # Create thumbnail
+                            thumbnail = img.copy()
+                            thumbnail.thumbnail((600, 600))
+                            thumb_buffer = BytesIO()
+                            thumbnail.save(thumb_buffer, format='JPEG')
+                            thumb_buffer.seek(0)
+                            
+                            # Get resolution
+                            width, height = img.size
+                            resolution = f"{width}x{height}"
+                        
+                        # Reset file pointer
+                        image.seek(0)
+                        
+                        # Generate unique filenames
+                        timestamp = uuid.uuid4().hex[:8]
+                        image_ext = image.name.split('.')[-1]
+                        
+                        # Create S3 keys
+                        image_key = f'tryons/{timestamp}_{batch.name}_{model_version.id}.{image_ext}'
+                        thumb_key = f'thumbnails/tryons/{timestamp}_{batch.name}_{model_version.id}_thumb.{image_ext}'
+                        
+                        # Upload to S3
+                        s3_client.upload_fileobj(image, AWS_STORAGE_BUCKET_NAME, image_key)
+                        s3_client.upload_fileobj(thumb_buffer, AWS_STORAGE_BUCKET_NAME, thumb_key)
+                        
+                        # Create Tryon object
+                        tryon = Tryon.objects.create(
+                            input_set=input_set,
+                            model_version=model_version,
+                            image_key=image_key,
+                            thumb_key=thumb_key,
+                            is_generated_by_api=False,
+                            time_taken=None,
+                            resolution=resolution,
+                            price_per_inference=model_version.price_per_inference,
+                            notes=notes  # Use the captured notes
+                        )
+                        batch.tryons.add(tryon)
             
             # Clear session data
             del request.session['tryonbatch_data']
@@ -501,3 +542,8 @@ def delete_ranking(request, ranking_id):
 def batch_selection(request):
     batches = TryonBatch.objects.all().order_by('-created_at')
     return render(request, 'main/batch_selection.html', {'batches': batches})
+
+@login_required
+def tryonbatch_list(request):
+    batches = TryonBatch.objects.all().order_by('-created_at')
+    return render(request, 'main/tryonbatch_list.html', {'batches': batches})

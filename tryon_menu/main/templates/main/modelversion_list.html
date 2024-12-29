@@ -16,6 +16,8 @@
                     <th style="width: 15%">Model</th>
                     <th style="width: 10%">Version</th>
                     <th style="width: 10%">Resolution</th>
+                    <th style="width: 10%">API Status</th>
+                    <th style="width: 10%">Price</th>
                     <th style="width: 20%">URL</th>
                     <th style="width: 10%">Actions</th>
                 </tr>
@@ -30,6 +32,14 @@
                     <td>{{ version.model.name }}</td>
                     <td>{{ version.version }}</td>
                     <td>{{ version.resolution }}px</td>
+                    <td>
+                        {% if version.is_api_implemented %}
+                            <span class="badge bg-success">API Ready</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Manual Upload</span>
+                        {% endif %}
+                    </td>
+                    <td>${{ version.price_per_inference|floatformat:3 }}</td>
                     <td>
                         {% if version.model.url %}
                             <a href="{{ version.model.url }}" target="_blank" class="text-truncate d-inline-block" style="max-width: 300px;" title="{{ version.model.url }}">

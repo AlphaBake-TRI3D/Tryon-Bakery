@@ -21,4 +21,5 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('password-reset/', views.password_reset_view, name='password_reset'),
     path('reset-password/<str:token>/', views.password_reset_confirm_view, name='password_reset_confirm'),
+    path('batch/list/', views.tryonbatch_list, name='tryonbatch_list'),
 ] 

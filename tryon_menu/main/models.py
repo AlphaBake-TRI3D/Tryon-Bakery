@@ -34,6 +34,9 @@ class ModelVersion(models.Model):
     description = models.TextField(blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     elo_rating = models.IntegerField(default=1500)  # Starting ELO rating
+    is_api_implemented = models.BooleanField(default=False)
+    tray_code = models.CharField(max_length=50, blank=True, help_text="Code used in tryon-tray package")
+    price_per_inference = models.FloatField(default=0.04, help_text="Cost in USD per API call")
 
     def __str__(self):
         return f"{self.model.name} v{self.version}"
@@ -105,8 +108,12 @@ class Tryon(models.Model):
     model_version = models.ForeignKey(ModelVersion, on_delete=models.CASCADE, related_name='tryons')
     image_key = models.CharField(max_length=500, help_text="S3 key for tryon image", null=True, blank=True)
     thumb_key = models.CharField(max_length=500, help_text="S3 key for tryon thumbnail", null=True, blank=True)
-    notes = models.JSONField(default=dict, help_text="Store positive and negative notes as JSON")
+    notes = models.CharField(max_length=500, help_text="Store notes as Text")
     created_at = models.DateTimeField(default=timezone.now)
+    is_generated_by_api = models.BooleanField(default=False)
+    time_taken = models.FloatField(null=True, blank=True, help_text="Time taken in seconds for API generation")
+    resolution = models.CharField(max_length=20, help_text="Image resolution in format WIDTHxHEIGHT", null=True, blank=True)
+    price_per_inference = models.FloatField(null=True, blank=True, help_text="Cost in USD for this inference")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

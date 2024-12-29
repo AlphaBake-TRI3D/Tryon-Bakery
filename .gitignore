@@ -71,3 +71,6 @@ tryon_menu/main/static/outputs/tryonBatches/*
 settings_local.py
 local_settings.py
 aws_constants.py 
+
+
+db.sqlite3

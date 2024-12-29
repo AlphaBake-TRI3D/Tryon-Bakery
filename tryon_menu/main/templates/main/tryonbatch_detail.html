@@ -33,14 +33,38 @@
                 <div class="result-header">
                     <h4>{{ tryon.model_version.model.name }}</h4>
                     <p>Version: {{ tryon.model_version.version }}</p>
-                    <p>Resolution: {{ tryon.model_version.resolution }}px</p>
                 </div>
                 <div class="result-image">
                     <img src="{{ tryon.image_path }}" alt="Tryon Result" onclick="openModal(this.src)">
                 </div>
-                {% if tryon.notes.user_notes %}
+                <div class="result-metadata">
+                    <div class="metadata-item">
+                        <span class="label">Resolution:</span>
+                        <span class="value">{{ tryon.resolution }}</span>
+                    </div>
+                    {% if tryon.is_generated_by_api %}
+                    <div class="metadata-item">
+                        <span class="label">Time Taken:</span>
+                        <span class="value">{{ tryon.time_taken|floatformat:2 }}s</span>
+                    </div>
+                    {% endif %}
+                    <div class="metadata-item">
+                        <span class="label">Price:</span>
+                        <span class="value">${{ tryon.price_per_inference|floatformat:3 }}</span>
+                    </div>
+                    {% if tryon.is_generated_by_api %}
+                    <div class="metadata-item">
+                        <span class="badge bg-success">API Generated</span>
+                    </div>
+                    {% else %}
+                    <div class="metadata-item">
+                        <span class="badge bg-secondary">Manual Upload</span>
+                    </div>
+                    {% endif %}
+                </div>
+                {% if tryon.notes %}
                 <div class="result-notes">
-                    <p>{{ tryon.notes.user_notes }}</p>
+                    <p>{{ tryon.notes }}</p>
                 </div>
                 {% endif %}
             </div>
@@ -167,6 +191,47 @@
         border-top: 1px solid #eee;
         color: #666;
         font-size: 0.9em;
+    }
+
+    .result-metadata {
+        margin-top: 15px;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 4px;
+    }
+
+    .metadata-item {
+        margin: 5px 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .metadata-item .label {
+        color: #666;
+        font-weight: 500;
+        min-width: 100px;
+    }
+
+    .metadata-item .value {
+        color: #333;
+    }
+
+    .badge {
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.8em;
+        font-weight: 500;
+    }
+
+    .bg-success {
+        background-color: #28a745 !important;
+        color: white;
+    }
+
+    .bg-secondary {
+        background-color: #6c757d !important;
+        color: white;
     }
 
     /* Modal styles */
