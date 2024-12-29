@@ -8,6 +8,8 @@
 ## Core Objectives
 1. Create a comprehensive benchmarking system for virtual try-on models
 2. Provide comparative analysis of different try-on solutions in the market
+   - Image-based virtual try-on comparisons
+   - Video generation model evaluations
 3. Present results through a user-friendly web interface
 
 ## Technical Stack
@@ -50,28 +52,75 @@
    - Thumbnails reduce bandwidth usage
    - S3 bucket requires proper CORS configuration
 
+## Video Generation Features
+1. Video Model Integration:
+   - Support for video generation from static images
+   - Multiple video modes (Standard and Pro)
+   - Configurable video durations (5s and 10s)
+   - Customizable prompts and parameters
+
+2. Video Processing:
+   - Input: Static person images
+   - Output: Generated videos in MP4 format
+   - Parameters:
+     - Prompt customization
+     - Negative prompt support
+     - CFG scale adjustment
+     - Seed control for reproducibility
+
+3. Video Storage and Management:
+   - Videos stored in S3 bucket: s3://bucket/videos/
+   - Metadata tracking for generated videos
+   - Task ID and timing information storage
+   - Local download capabilities
+
+4. Video Generation UI:
+   - Video generation request form
+   - Progress tracking interface
+   - Video preview and download options
+   - Parameter configuration panel
+
+5. Video Model Evaluation:
+   - Integration with existing Elo rating system
+   - Video quality assessment metrics
+   - Performance benchmarking for video models
+   - Comparison tools for different video modes
+
 ## Key Features
 1. Virtual try-on model integration
 2. Benchmarking capabilities
+   - Image-based try-on evaluation
+   - Video generation quality assessment
 3. Comparative analysis tools
 4. Results visualization
+5. Video generation and management
 
 ## Target Users
 - Researchers in virtual try-on technology
 - Developers implementing try-on solutions
 - Fashion tech companies evaluating try-on models
+- Content creators needing fashion visualization tools
+- Video content producers in fashion industry
 
 ## Success Metrics
 - Accuracy of benchmarking results
 - Number of models successfully compared
 - System performance and reliability
 - User engagement metrics
+- Video generation quality and speed
+- User satisfaction with generated videos
 
 ## Future Considerations
 - Additional model integration
 - Enhanced comparison metrics
 - Performance optimization
 - API accessibility
+- Advanced video generation features:
+  - Multi-person video support
+  - Custom animation sequences
+  - Style transfer capabilities
+  - Real-time video generation
+  - Batch video processing
 
 ## LLM Context
 This documentation is structured to assist future LLM interactions in understanding:
