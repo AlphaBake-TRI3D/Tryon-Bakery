@@ -2,7 +2,7 @@ import boto3
 from io import BytesIO
 from PIL import Image
 import requests
-from tryon_tray.vton_api import VTON
+from tryon_tray.api.vton import VTON
 from django.conf import settings
 from .models import InputSet, ModelVersion, Tryon
 import uuid
@@ -40,15 +40,34 @@ def generate_tryon_via_api(input_set, model_version, s3_client):
     with open(temp_model, 'wb') as f:
         f.write(model_obj.read())
     
-    # Call tryon-tray API
-    result = VTON(
-        model_image=temp_model,
-        garment_image=temp_garment,
-        model_name=model_version.tray_code,
-        auto_download=True,
-        download_path=temp_result,
-        show_polling_progress=True,
-    )
+    # Call tryon-tray API with model-specific parameters
+    api_params = {
+        'model_image': temp_model,
+        'garment_image': temp_garment,
+        'model_name': model_version.tray_code,
+        'auto_download': True,
+        'download_path': temp_result,
+        'show_polling_progress': True,
+    }
+    
+    # Add model-specific parameters
+    if model_version.tray_code == 'replicate':
+        api_params.update({
+            'category': 'upper_body',
+            'steps': 30,
+            'seed': 42,
+            'crop': False,
+            'force_dc': False,
+            'mask_only': False,
+        })
+    elif model_version.tray_code in ['fashnai', 'klingai']:
+        api_params.update({
+            'category': 'tops',
+            'mode': 'quality'
+        })
+    
+    # Generate try-on
+    result = VTON(**api_params)
     
     # Generate unique filenames for S3
     timestamp = uuid.uuid4().hex[:8]
@@ -80,10 +99,12 @@ def generate_tryon_via_api(input_set, model_version, s3_client):
     os.remove(temp_garment)
     os.remove(temp_model)
     os.remove(temp_result)
+    from pprint import pprint
+    pprint(result)
     
     # Extract time taken in seconds
     time_taken = None
-    if result.get('timing') and result['timing'].get('time_taken'):
+    if result.get('timing'):
         try:
             # Convert time_taken to seconds if it's a datetime.timedelta
             time_taken = result['timing']['time_taken'].total_seconds()
