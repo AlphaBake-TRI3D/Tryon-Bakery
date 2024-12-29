@@ -22,6 +22,9 @@ class KlingaiVTON(BaseVTON):
             "Content-Type": "application/json"
         }
         self.prediction_id = None
+        self.start_time = None
+        self.end_time = None
+        self.time_taken = None
 
     def _get_jwt_token(self):
         """Generate JWT token for authentication."""
@@ -51,6 +54,7 @@ class KlingaiVTON(BaseVTON):
         Returns:
             str: Prediction ID for status checking
         """
+        self.start_time = datetime.now()
         self.headers["Authorization"] = f"Bearer {self._get_jwt_token()}"
         
         payload = self.prepare_payload()
@@ -67,11 +71,11 @@ class KlingaiVTON(BaseVTON):
         return self.prediction_id
 
     def check_status(self) -> Tuple[bool, Optional[Union[List[str], Exception]]]:
-        """Check current status of the try-on job.
+        """Check the status of the try-on process.
         
         Returns:
             Tuple containing:
-            - bool: Whether the job is complete
+            - bool: Whether the process is complete
             - Optional[Union[List[str], Exception]]: Result URLs or error
         """
         # Refresh JWT token for each status check
@@ -86,15 +90,17 @@ class KlingaiVTON(BaseVTON):
         
         if data["data"]["task_status"] == "succeed":
             self.result_urls = [img["url"] for img in data["data"]["task_result"]["images"]]
+            self.end_time = datetime.now()
+            self.time_taken = int((self.end_time - self.start_time).total_seconds())
             return True, self.result_urls
         elif data["data"]["task_status"] == "failed":
             return True, Exception(f"Task failed: {data['data']['task_status_msg']}")
         
         return False, None
-    
+
     def get_result(self) -> Dict[str, Any]:
         """Get the try-on result."""
-        if not hasattr(self, 'result_urls') or not self.result_urls:
+        if not self.result_urls:
             raise ValueError("No result available. Run the try-on first.")
             
         result = {
@@ -103,8 +109,11 @@ class KlingaiVTON(BaseVTON):
                 "model": self.model_image,
                 "garment": self.garment_image
             },
-            "mode": self.params.get("mode", "quality"),
-            "category": self.params.get("category", "tops")
+            "timing": {
+                "start_time": self.start_time.isoformat() if self.start_time else None,
+                "end_time": self.end_time.isoformat() if self.end_time else None,
+                "time_taken": self.time_taken
+            }
         }
         
         if self.auto_download and self.download_path:

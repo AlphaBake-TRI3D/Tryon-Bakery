@@ -56,7 +56,7 @@ class VModelVTON(BaseVTON):
             )
             self.status = "completed"
             self.end_time = datetime.now()
-            self.time_taken = self.end_time - self.start_time
+            self.time_taken = int((self.end_time - self.start_time).total_seconds())
             
             # Download if auto_download is enabled
             if self.auto_download and self.download_path and self.result_urls:
@@ -84,7 +84,7 @@ class VModelVTON(BaseVTON):
             "timing": {
                 "start_time": self.start_time.isoformat() if self.start_time else None,
                 "end_time": self.end_time.isoformat() if self.end_time else None,
-                "time_taken": str(self.time_taken) if self.time_taken else None
+                "time_taken": self.time_taken
             }
         }
         
