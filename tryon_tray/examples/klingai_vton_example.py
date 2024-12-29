@@ -9,6 +9,7 @@ sys.path.append(str(repo_root / "python" / "src"))
 from dotenv import load_dotenv
 from tryon_tray.api.vton import VTON
 from datetime import datetime
+import time
 
 # Load environment variables from .env file
 load_dotenv()
@@ -25,7 +26,7 @@ outputs_dir.mkdir(exist_ok=True)
 # Input paths
 model_image = str(inputs_dir / "person.jpg")
 garment_image = str(inputs_dir / "garment.jpeg")
-output_path = str(outputs_dir / "result_fashnai.jpg")
+output_path = str(outputs_dir / f"result_klingai_{int(time.time())}.jpg")
 
 print(f"Using model image: {model_image}")
 print(f"Using garment image: {garment_image}")
@@ -35,7 +36,7 @@ print(f"Output will be saved to: {output_path}")
 result = VTON(
     model_image=model_image,
     garment_image=garment_image,
-    model_name="fashnai",
+    model_name="klingai",
     auto_download=True,
     download_path=output_path,
     show_polling_progress=True,
@@ -52,5 +53,4 @@ if result.get('timing'):
 if result.get('local_path'):
     print(f"\nImage downloaded to: {result['local_path']}")
 
-print(f"\nResult URLs: {result['urls']}")
-
+print(f"\nResult URLs: {result['urls']}") 

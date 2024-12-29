@@ -1,0 +1,65 @@
+{
+    "package_name": "tryon_tray",
+    "version": "2.0.0",
+    "description": "AI-powered fashion technology services with unified interfaces",
+    "documentation_files": {
+        "architecture": "ARCHITECTURE.md",
+        "user_guide": "README.md",
+        "changelog": "CHANGELOG.md"
+    },
+    "code_structure": {
+        "root": "tryon_tray/python/src/tryon_tray",
+        "main_components": [
+            "api - High-level interfaces",
+            "base - Abstract classes",
+            "services - Implementations",
+            "utils - Shared utilities",
+            "types - Type definitions"
+        ]
+    },
+    "model_categories": {
+        "vton": {
+            "purpose": "Virtual try-on for clothing",
+            "implementations": ["fashnai", "replicate"],
+            "base_class": "BaseVTON"
+        },
+        "video_generation": {
+            "purpose": "Generate videos from images",
+            "implementations": ["kling-v1", "kling-v1-5"],
+            "base_class": "BaseVideoGen",
+            "features": {
+                "modes": ["std", "pro"],
+                "durations": ["5", "10"],
+                "parameters": {
+                    "cfg_scale": "Control strength of prompt",
+                    "negative_prompt": "What to avoid in generation",
+                    "seed": "For reproducible results"
+                }
+            }
+        },
+        "pose_transfer": {
+            "purpose": "Transfer poses between images",
+            "status": "planned"
+        },
+        "quality_check": {
+            "purpose": "Validate image quality",
+            "implementations": ["qwen"],
+            "status": "planned"
+        }
+    },
+    "key_interfaces": {
+        "vton": "model_image, garment_image -> result_urls",
+        "video": "source_image, prompt -> video_url, task_id, metadata"
+    },
+    "extension_points": [
+        "New model category: Add to base/, api/, services/",
+        "New service: Implement in services/<category>/",
+        "New utility: Add to utils/"
+    ],
+    "environment_variables": {
+        "FASHNAI_API_KEY": "Virtual try-on API key",
+        "REPLICATE_API_KEY": "Replicate API key",
+        "KLINGAI_ACCESS_ID": "Kling AI access ID",
+        "KLINGAI_API_KEY": "Kling AI API key"
+    }
+}
