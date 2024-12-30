@@ -16,6 +16,16 @@
     <div class="comparison-grid">
         <!-- Input Set Images -->
         <div class="input-images">
+            {% if batch.tryons.first.mode == 'video' %}
+            <div class="image-container">
+                <h4>Model Image</h4>
+                <img src="{{ input_set.model_image }}" alt="Model" onclick="openModal(this.src)">
+            </div>
+            <div class="prompt-container">
+                <h4>Prompt</h4>
+                <p>{{ input_set.prompt }}</p>
+            </div>
+            {% else %}
             <div class="image-container">
                 <h4>Garment Image</h4>
                 <img src="{{ input_set.garment_image }}" alt="Garment" onclick="openModal(this.src)">
@@ -24,6 +34,7 @@
                 <h4>Model Image</h4>
                 <img src="{{ input_set.model_image }}" alt="Model" onclick="openModal(this.src)">
             </div>
+            {% endif %}
         </div>
 
         <!-- Tryon Results -->
@@ -35,7 +46,16 @@
                     <p>Version: {{ tryon.model_version.version }}</p>
                 </div>
                 <div class="result-image">
+                    {% if tryon.mode == 'video' %}
+                    <div class="video-card">
+                        <video controls>
+                            <source src="{{ tryon.image_path }}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    {% else %}
                     <img src="{{ tryon.image_path }}" alt="Tryon Result" onclick="openModal(this.src)">
+                    {% endif %}
                 </div>
                 <div class="result-metadata">
                     <div class="metadata-item">
@@ -276,6 +296,18 @@
 
     .close:hover {
         color: #bbb;
+    }
+
+    .video-card {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .video-card video {
+        width: 100%;
+        height: auto;
+        max-height: 400px;
+        object-fit: contain;
     }
 </style>
 

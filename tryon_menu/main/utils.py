@@ -13,6 +13,9 @@ from tryon_menu.aws_constants import (
     AWS_S3_REGION_NAME
 )
 from dotenv import load_dotenv
+from tryon_tray.api.video_gen import generate_video
+from tryon_tray.types.video import VideoMode, VideoDuration
+from datetime import timedelta
 load_dotenv()
 
 def generate_tryon_via_api(input_set, model_version, s3_client):
@@ -113,3 +116,55 @@ def generate_tryon_via_api(input_set, model_version, s3_client):
             time_taken = float(result['timing']['time_taken'])
     
     return image_key, thumb_key, resolution, time_taken 
+
+def generate_video_via_api(input_set, model_version, s3_client):
+    """
+    Generate a video using the tryon-tray API.
+    Returns the S3 key for the generated video and the time taken.
+    """
+    # Download model image from S3
+    model_obj = BytesIO()
+    s3_client.download_fileobj(AWS_STORAGE_BUCKET_NAME, input_set.model_key, model_obj)
+    model_obj.seek(0)
+    temp_model = f"/tmp/{uuid.uuid4()}.jpg"
+    with open(temp_model, 'wb') as f:
+        f.write(model_obj.read())
+
+    # Call video generation API
+    result = generate_video(
+        source_image=temp_model,
+        prompt=input_set.prompt,
+        mode=VideoMode.STANDARD.value,
+        duration=VideoDuration.FIVE.value,
+        show_polling_progress=True,
+        auto_download=True,
+        download_path=f"/tmp/{uuid.uuid4()}.mp4",
+    )
+
+    # Generate unique filename for S3
+    timestamp = uuid.uuid4().hex[:8]
+    video_key = f'tryons/{timestamp}_{model_version.model.name}_{model_version.version}.mp4'
+
+    # Upload video to S3
+    with open(result.local_path, 'rb') as f:
+        s3_client.upload_fileobj(f, AWS_STORAGE_BUCKET_NAME, video_key)
+
+    # Clean up temporary files
+    import os
+    os.remove(temp_model)
+    os.remove(result.local_path)
+
+    # Extract time taken in seconds
+    time_taken = None
+    if result.timing:
+        try:
+            # If time_taken is a string, convert it to a timedelta
+            if isinstance(result.timing['time_taken'], str):
+                time_taken = timedelta(seconds=float(result.timing['time_taken'].split(':')[-1])).total_seconds()
+            else:
+                time_taken = result.timing['time_taken'].total_seconds()
+        except AttributeError:
+            # If it's already a number, use it as is
+            time_taken = float(result.timing['time_taken'])
+
+    return video_key, time_taken 

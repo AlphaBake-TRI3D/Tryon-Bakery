@@ -15,6 +15,17 @@
             <label for="name">Input Set Name:</label>
             <input type="text" id="name" name="name" required class="form-control">
         </div>
+        {% if request.GET.mode == 'video' %}
+        <div class="form-group">
+            <label for="model_image">Model Image:</label>
+            <input type="file" id="model_image" name="model_image" accept="image/*" required class="form-control">
+            <div id="model_preview" class="image-preview"></div>
+        </div>
+        <div class="form-group">
+            <label for="prompt">Prompt:</label>
+            <textarea id="prompt" name="prompt" class="form-control"></textarea>
+        </div>
+        {% else %}
         <div class="form-group">
             <label for="garment_image">Garment Image:</label>
             <input type="file" id="garment_image" name="garment_image" accept="image/*" required class="form-control">
@@ -25,6 +36,7 @@
             <input type="file" id="model_image" name="model_image" accept="image/*" required class="form-control">
             <div id="model_preview" class="image-preview"></div>
         </div>
+        {% endif %}
         <button type="submit" class="btn-primary">Upload Images</button>
     </form>
 </div>
@@ -90,12 +102,18 @@
         }
     }
 
-    document.getElementById('garment_image').addEventListener('change', function() {
-        previewImage(this, 'garment_preview');
-    });
+    const garmentInput = document.getElementById('garment_image');
+    if (garmentInput) {
+        garmentInput.addEventListener('change', function() {
+            previewImage(this, 'garment_preview');
+        });
+    }
 
-    document.getElementById('model_image').addEventListener('change', function() {
-        previewImage(this, 'model_preview');
-    });
+    const modelInput = document.getElementById('model_image');
+    if (modelInput) {
+        modelInput.addEventListener('change', function() {
+            previewImage(this, 'model_preview');
+        });
+    }
 </script>
 {% endblock %} 

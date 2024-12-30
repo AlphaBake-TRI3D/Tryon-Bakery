@@ -38,18 +38,10 @@
         </div>
 
         <div class="form-group">
-            <label for="mode">Select Mode:</label>
-            <select id="mode" name="mode" required class="form-control">
-                <option value="">Select a Mode</option>
-                <option value="image">Image</option>
-                <option value="video">Video</option>
-            </select>
-        </div>
-
-        <div class="form-group">
             <label>Select Model Versions:</label>
             <div class="model-versions-grid">
                 {% for version in model_versions %}
+                {% if version.model.model_type == request.GET.mode %}
                 <div class="model-version-card">
                     <input type="checkbox" 
                            id="model_version_{{ version.id }}" 
@@ -68,6 +60,7 @@
                         </div>
                     </label>
                 </div>
+                {% endif %}
                 {% endfor %}
             </div>
         </div>
