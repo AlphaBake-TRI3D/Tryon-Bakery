@@ -18,12 +18,15 @@ from tryon_menu.aws_constants import (
 from django.core.paginator import Paginator
 from io import BytesIO
 from django.urls import reverse
+from django.db.models import Count, Q, F
 
 def index_view(request):
     return redirect('modelversion_list')
 
-@login_required
 def comparison_view(request, batch_id):
+    if not request.user.is_authenticated:
+        return redirect('login')
+    
     if not batch_id:
         return redirect('batch_selection')
     
@@ -226,12 +229,21 @@ def upload_images(request):
 
     return render(request, 'main/upload_images.html')
 
-@login_required
 def inputset_list(request):
-    inputsets = InputSet.objects.all().order_by('-created_at')
-    return render(request, 'main/inputset_list.html', {'inputsets': inputsets})
+    filter_type = request.GET.get('filter', 'all')
+    if filter_type == 'image':
+        inputsets = InputSet.objects.filter(mode='image').order_by('-created_at')
+    elif filter_type == 'video':
+        inputsets = InputSet.objects.filter(mode='video').order_by('-created_at')
+    else:
+        inputsets = InputSet.objects.all().order_by('-created_at')
+    
+    paginator = Paginator(inputsets, 10)  # Show 10 inputsets per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    return render(request, 'main/inputset_list.html', {'inputsets': page_obj})
 
-@login_required
 def inputset_detail(request, inputset_id):
     inputset = get_object_or_404(InputSet, id=inputset_id)
     return render(request, 'main/inputset_detail.html', {'inputset': inputset})
@@ -426,6 +438,7 @@ def create_tryonbatch_step2(request):
             })
     
     return render(request, 'main/tryonbatch_create_step2.html', {
+        'tryonbatch_data': tryonbatch_data,
         'input_set': InputSet.objects.get(id=tryonbatch_data['input_set_id']),
         'model_versions': ModelVersion.objects.filter(id__in=tryonbatch_data['model_version_ids'])
     })
@@ -441,7 +454,7 @@ def tryonbatch_detail(request, batch_id):
     })
 
 def modelversion_list(request):
-    model_versions = ModelVersion.objects.all().select_related('model', 'model__organization').order_by('-elo_rating', '-created_at')
+    model_versions = ModelVersion.objects.select_related('model').order_by('-elo_rating', '-created_at')
     return render(request, 'main/modelversion_list.html', {'model_versions': model_versions})
 
 def modelversion_detail(request, modelversion_id):
@@ -465,8 +478,11 @@ def modelversion_detail(request, modelversion_id):
         'can_edit': request.user.is_staff
     })
 
-@login_required
+
 def rank_models(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
+    
     batch_id = request.GET.get('batch_id')
     if batch_id:
         batch = get_object_or_404(TryonBatch, id=batch_id)
@@ -506,6 +522,7 @@ def rank_models(request):
 @login_required
 def submit_ranking(request):
     if request.method == 'POST':
+        print(request.POST)
         winner_id = request.POST.get('winner_id')
         loser_id = request.POST.get('loser_id')
         batch_id = request.POST.get('batch_id')
@@ -526,10 +543,10 @@ def submit_ranking(request):
         return redirect('comparison_view', batch_id=batch_id)
     return redirect('batch_selection')
 
-@login_required
+
 def my_rankings(request):
     # Get the tab from query parameters, default to 'my'
-    active_tab = request.GET.get('tab', 'my')
+    active_tab = request.GET.get('tab', 'all')
     
     # Base query with all necessary related fields
     base_query = RankedPair.objects.select_related(
@@ -543,7 +560,10 @@ def my_rankings(request):
     
     # Filter based on active tab
     if active_tab == 'my':
-        rankings = base_query.filter(user=request.user)
+        if request.user.is_authenticated:
+            rankings = base_query.filter(user=request.user)
+        else:
+            rankings = base_query.none()
     else:  # 'all' tab
         rankings = base_query
     
@@ -583,12 +603,28 @@ def delete_ranking(request, ranking_id):
         
     return redirect('my_rankings')
 
-@login_required
+
+
 def batch_selection(request):
-    batches = TryonBatch.objects.all().order_by('-created_at')
+    if not request.user.is_authenticated:
+        return redirect('login')
+    
+    # Filter batches with unranked pairs for the current user
+    batches = TryonBatch.objects.annotate(
+        total_pairs=Count('tryons'),
+        ranked_pairs=Count('rankings', filter=Q(rankings__user=request.user))
+    ).filter(total_pairs__gt=F('ranked_pairs')).order_by('-created_at')
+    
+    # Calculate the number of done and to be done rankings
+    for batch in batches:
+        batch.done = batch.ranked_pairs
+        batch.to_be_done = batch.total_pairs - batch.ranked_pairs
+    
     return render(request, 'main/batch_selection.html', {'batches': batches})
 
-@login_required
 def tryonbatch_list(request):
     batches = TryonBatch.objects.all().order_by('-created_at')
-    return render(request, 'main/tryonbatch_list.html', {'batches': batches})
+    paginator = Paginator(batches, 10)  # Show 10 batches per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'main/tryonbatch_list.html', {'batches': page_obj})

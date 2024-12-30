@@ -63,6 +63,10 @@ def generate_tryon_via_api(input_set, model_version, s3_client):
             'force_dc': False,
             'mask_only': False,
         })
+        api_params.update({
+            'garment_image': input_set.garment_image,
+            'model_image': input_set.model_image,
+        })
     elif model_version.tray_code in ['fashnai', 'klingai']:
         api_params.update({
             'category': 'tops',

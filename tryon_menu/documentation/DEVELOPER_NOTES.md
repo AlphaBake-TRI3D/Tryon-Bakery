@@ -126,3 +126,18 @@ also look at @InitialPRD.txt , which has some unnecessary information also , lik
 with this core context , write a good developer oriented documentation of how the files are organised and functionalities , multiple category of models etc 
 
 Then will start implemeting the video mode step by step
+
+# Developer Notes
+
+## Model Version Filtering
+
+- Implemented filtering for model versions by type (Image/Video) in `modelversion_list.html`.
+- Added JavaScript function `filterModels(type)` to dynamically show/hide table rows based on the selected filter.
+- Updated `views.py` to ensure `model_versions` queryset includes model type information.
+
+## Key Files
+- `modelversion_list.html`: Contains the HTML and JavaScript for filtering.
+- `views.py`: Fetches model versions with necessary details for filtering.
+
+## Future Enhancements
+- Consider adding server-side filtering for large datasets to improve performance.

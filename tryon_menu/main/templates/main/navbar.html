@@ -11,27 +11,31 @@
             <button class="dropbtn">Lists</button>
             <div class="dropdown-content">
                 <a href="{% url 'modelversion_list' %}">Leader Board</a>
+                <a href="{% url 'my_rankings' %}"> Rankings List </a>
                 <a href="{% url 'inputset_list' %}">Input Sets</a>
                 <a href="{% url 'tryonbatch_list' %}">Tryon Batches</a>
-                <a href="{% url 'my_rankings' %}">My Rankings</a>
             </div>
         </div>
+
+        {% if user.is_authenticated and user.is_staff %}
         <div class="dropdown">
             <button class="dropbtn">Create</button>
             <div class="dropdown-content">
-                <a href="{% url 'upload_images' %}?mode=image">Create Input Set Image</a>
-                <a href="{% url 'upload_images' %}?mode=video">Create Input Set Video</a>
-                <a href="{% url 'create_tryonbatch_step1' %}?mode=image">Create Tryon Batch Image</a>
-                <a href="{% url 'create_tryonbatch_step1' %}?mode=video">Create Tryon Batch Video</a>
+                <a href="{% url 'upload_images' %}?mode=image">Input Set Image</a>
+                <a href="{% url 'upload_images' %}?mode=video">Input Set Video</a>
+                <a href="{% url 'create_tryonbatch_step1' %}?mode=image">Tryon Batch Image</a>
+                <a href="{% url 'create_tryonbatch_step1' %}?mode=video">Tryon Batch Video</a>
             </div>
         </div>
+        {% endif %}
         <a href="{% url 'logout' %}" class="nav-link">Logout</a>
         {% else %}
         <div class="dropdown">
             <button class="dropbtn">Lists</button>
             <div class="dropdown-content">
+                <a href="{% url 'modelversion_list' %}">Leader Board</a>
+                <a href="{% url 'my_rankings' %}"> Rankings List </a>
                 <a href="{% url 'inputset_list' %}">Input Sets</a>
-                <a href="{% url 'modelversion_list' %}">Model Versions</a>
                 <a href="{% url 'tryonbatch_list' %}">Tryon Batches</a>
             </div>
         </div>

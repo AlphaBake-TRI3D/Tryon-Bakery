@@ -3,7 +3,12 @@
 {% block content %}
 <div class="container-fluid p-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0">Rankings</h2>
+        <div>
+            <h2 class="mb-0">Rankings</h2>
+            <a href="{% url 'batch_selection' %}" class="btn btn-primary">Start Ranking</a>
+        </div>
+        </br>
+        
         <div class="btn-group">
             <a href="?tab=my" class="btn btn-outline-primary {% if active_tab == 'my' %}active{% endif %}">My Rankings</a>
             <a href="?tab=all" class="btn btn-outline-primary {% if active_tab == 'all' %}active{% endif %}">All Rankings</a>
@@ -104,6 +109,8 @@
         </ul>
     </nav>
     {% endif %}
+
+    
 </div>
 
 <style>

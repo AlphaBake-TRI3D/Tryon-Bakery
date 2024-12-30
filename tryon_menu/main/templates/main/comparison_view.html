@@ -3,65 +3,105 @@
 {% block content %}
 <div>
     <div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2 class="mb-0">Rank Models - {{ batch.name }}</h2>
-            <button id="toggleButton" class="btn btn-primary" onclick="toggleView()">Show Input</button>
-        </div>
 
         {% if unranked_pair %}
-            <!-- Notes Section -->
-            <div class="mb-4">
-                <textarea id="rankingNotes" class="form-control" rows="2" placeholder="Add your notes about this comparison here..." style="resize: vertical;"></textarea>
-            </div>
-
-            <!-- Input Set Images (Hidden by default) -->
-            <div id="inputSetView" style="display: none; margin-bottom: 20px;">
-                <div style="display: flex; justify-content: center; gap: 20px;">
-                    <div style="text-align: center;">
-                        <h4>Garment</h4>
-                        <img src="{{ unranked_pair.0.input_set.garment_image }}" style="max-height: 300px; max-width: 100%;" alt="Garment">
+            <div class="comparison-grid">
+                <!-- Input Set Images or Prompt -->
+                <div class="input-images">
+                    {% if unranked_pair.0.input_set.mode == 'video' %}
+                    <div class="image-container">
+                        <h4>Model Image</h4>
+                        <img src="{{ unranked_pair.0.input_set.model_image }}" alt="Model">
                     </div>
-                    <div style="text-align: center;">
-                        <h4>Model</h4>
-                        <img src="{{ unranked_pair.0.input_set.model_image }}" style="max-height: 300px; max-width: 100%;" alt="Model">
+                    <div class="prompt-container">
+                        <h4>Prompt</h4>
+                        <p>{{ unranked_pair.0.input_set.prompt }}</p>
                     </div>
+                    {% else %}
+                    <div class="image-container">
+                        <h4>Garment Image</h4>
+                        <img src="{{ unranked_pair.0.input_set.garment_image }}" alt="Garment">
+                    </div>
+                    <div class="image-container">
+                        <h4>Model Image</h4>
+                        <img src="{{ unranked_pair.0.input_set.model_image }}" alt="Model">
+                    </div>
+                    {% endif %}
                 </div>
-            </div>
 
-            <!-- Output Images -->
-            <div id="outputView" style="display: flex; justify-content: space-between; align-items: center;">
-                <div style="flex: 1; text-align: center;">
-                    <h3>{{ unranked_pair.0.model_version }}</h3>
-                    <form method="post" action="{% url 'submit_ranking' %}" id="rankingFormLeft">
-                        {% csrf_token %}
-                        <input type="hidden" name="batch_id" value="{{ batch.id }}">
-                        <input type="hidden" name="loser_id" id="loserIdLeft" value="{{ unranked_pair.1.id }}">
-                        <input type="hidden" name="notes" id="notesInputLeft">
-                        <button type="submit" name="winner_id" value="{{ unranked_pair.0.id }}" 
-                                style="background-color: black; color: white; padding: 10px; border: none; cursor: pointer;"
-                                onclick="return submitWithNotes('left')">
-                            Left is Better
-                        </button>
-                    </form>
-                    <div style="display: flex; justify-content: center; align-items: center; height: 80vh;">
-                        <img src="{{ unranked_pair.0.image_path }}" style="max-height: 100%; max-width: 100%;" alt="Model A">
+                <!-- Comparison Cards -->
+                <div class="results-grid">
+                    {% for tryon in unranked_pair %}
+                    <div class="result-card">
+                        <div class="button-container">
+                            <form method="post" action="{% url 'submit_ranking' %}" onsubmit="return promptForNotes({{ tryon.id }})">
+                                {% csrf_token %}
+                                <input type="hidden" name="batch_id" value="{{ batch.id }}">
+                                {% if tryon == unranked_pair.0 %}
+                                <input type="hidden" name="winner_id" value="{{ unranked_pair.0.id }}">
+                                <input type="hidden" name="loser_id" value="{{ unranked_pair.1.id }}">
+                                {% else %}
+                                <input type="hidden" name="winner_id" value="{{ unranked_pair.1.id }}">
+                                <input type="hidden" name="loser_id" value="{{ unranked_pair.0.id }}">
+                                {% endif %}
+                                <input type="hidden" name="notes" id="notesInput{{ tryon.id }}">
+                                <button type="button" class="centered-button" onclick="showNotesPrompt({{ tryon.id }})">
+                                    {% if tryon == unranked_pair.0 %}Left is Better{% else %}Right is Better{% endif %}
+                                </button>
+                            </form>
+                        </div>
+                        <div class="result-header">
+                            <h4>{{ tryon.model_version.model.name }}</h4>
+                            <p>Version: {{ tryon.model_version.version }}</p>
+                        </div>
+                        <div class="result-image">
+                            {% if tryon.mode == 'video' %}
+                            <div class="video-card">
+                                <video controls>
+                                    <source src="{{ tryon.image_path }}" type="video/mp4">
+                                    Your browser does not support the video tag.
+                                </video>
+                            </div>
+                            {% else %}
+                            <img src="{{ tryon.image_path }}" alt="Tryon Result" onclick="openModal('{{ tryon.image_path }}', '{{ tryon.model_version.model.name }}', '{{ tryon.resolution }}', '{{ tryon.price_per_inference|floatformat:3 }}', '{{ tryon.time_taken|floatformat:2 }}')">
+                            {% endif %}
+                        </div>
+                        <div class="result-metadata">
+                            <div class="metadata-item">
+                                <span class="label">Resolution:</span>
+                                <span class="value">{{ tryon.resolution }}</span>
+                            </div>
+                            {% if tryon.is_generated_by_api %}
+                            <div class="metadata-item">
+                                <span class="label">Time Taken:</span>
+                                <span class="value">{{ tryon.time_taken|floatformat:2 }}s</span>
+                            </div>
+                            {% endif %}
+                            <div class="metadata-item">
+                                <span class="label">Price:</span>
+                                <span class="value">${{ tryon.price_per_inference|floatformat:3 }}</span>
+                            </div>
+                            {% if tryon.is_generated_by_api %}
+                            <div class="metadata-item">
+                                <span class="badge bg-success">API Generated</span>
+                            </div>
+                            {% else %}
+                            <div class="metadata-item">
+                                <span class="badge bg-secondary">Manual Upload</span>
+                            </div>
+                            {% endif %}
+                        </div>
                     </div>
+                    {% endfor %}
                 </div>
-                <div style="flex: 1; text-align: center;">
-                    <h3>{{ unranked_pair.1.model_version }}</h3>
-                    <form method="post" action="{% url 'submit_ranking' %}" id="rankingFormRight">
-                        {% csrf_token %}
-                        <input type="hidden" name="batch_id" value="{{ batch.id }}">
-                        <input type="hidden" name="loser_id" id="loserIdRight" value="{{ unranked_pair.0.id }}">
-                        <input type="hidden" name="notes" id="notesInputRight">
-                        <button type="submit" name="winner_id" value="{{ unranked_pair.1.id }}" 
-                                style="background-color: black; color: white; padding: 10px; border: none; cursor: pointer;"
-                                onclick="return submitWithNotes('right')">
-                            Right is Better
-                        </button>
-                    </form>
-                    <div style="display: flex; justify-content: center; align-items: center; height: 80vh;">
-                        <img src="{{ unranked_pair.1.image_path }}" style="max-height: 100%; max-width: 100%;" alt="Model B">
+
+                <!-- Notes Prompt -->
+                <div id="notesPrompt" class="modal" style="display: none;">
+                    <div class="modal-content">
+                        <span class="close" onclick="closeNotesPrompt()">&times;</span>
+                        <h4>Provide a Reason for Your Choice</h4>
+                        <textarea id="rankingNotes" class="form-control" rows="4" placeholder="Add your notes about this comparison here..." style="resize: vertical;"></textarea>
+                        <button class="centered-button" onclick="submitWithNotes()">Submit</button>
                     </div>
                 </div>
             </div>
@@ -73,29 +113,282 @@
     </div>
 </div>
 
+<!-- Modal -->
+<div id="imageModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h4 id="modalModelName" style="text-align: center;color: white;"></h4>
+        <img id="modalImage" src="" alt="Full size image">
+        <div class="modal-details">
+            <span id="modalResolution"></span><br>
+            <span id="modalPrice"></span><br>
+            <span id="modalTimeTaken"></span>
+        </div>
+    </div>
+</div>
+
+<style>
+    .comparison-grid {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 20px;
+    }
+
+    .input-images {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .image-container {
+        margin-bottom: 20px;
+    }
+
+    .image-container h4 {
+        margin: 0 0 10px 0;
+    }
+
+    .image-container img {
+        width: 100%;
+        height: 300px;
+        object-fit: contain;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .image-container img:hover {
+        transform: scale(1.05);
+    }
+
+    .results-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+    }
+
+    .result-card {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .result-header {
+        margin-bottom: 15px;
+    }
+
+    .result-header h4 {
+        margin: 0 0 5px 0;
+    }
+
+    .result-header p {
+        margin: 3px 0;
+        color: #666;
+        font-size: 0.9em;
+    }
+
+    .result-image img {
+        width: 100%;
+        height: 400px;
+        object-fit: contain;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .result-image img:hover {
+        transform: scale(1.05);
+    }
+
+    .result-notes {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #eee;
+        color: #666;
+        font-size: 0.9em;
+    }
+
+    .result-metadata {
+        margin-top: 15px;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 4px;
+    }
+
+    .metadata-item {
+        margin: 5px 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .metadata-item .label {
+        color: #666;
+        font-weight: 500;
+        min-width: 100px;
+    }
+
+    .metadata-item .value {
+        color: #333;
+    }
+
+    .badge {
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.8em;
+        font-weight: 500;
+    }
+
+    .bg-success {
+        background-color: #28a745 !important;
+        color: white;
+    }
+
+    .bg-secondary {
+        background-color: #6c757d !important;
+        color: white;
+    }
+
+    .video-card {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .video-card video {
+        width: 100%;
+        height: auto;
+        max-height: 400px;
+        object-fit: contain;
+    }
+
+    .button-container {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 15px;
+    }
+
+    .centered-button {
+        background-color: black;
+        color: #666;
+        padding: 10px;
+        border: none;
+        cursor: pointer;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1001;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.9);
+    }
+
+    .modal-content {
+        position: relative;
+        margin: auto;
+        padding: 20px;
+        width: 90%;
+        max-width: 1200px;
+        height: 90vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #modalImage {
+        max-width: 100%;
+        max-height: 70vh;
+        object-fit: contain;
+    }
+
+    .modal-details {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        color: white;
+        font-size: 1em;
+    }
+
+    .close {
+        position: absolute;
+        right: 25px;
+        top: 0;
+        color: #f1f1f1;
+        font-size: 35px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .close:hover {
+        color: #bbb;
+    }
+</style>
+
 <script>
-    function validateSubmission(side) {
-        // This function can be used to perform any additional validation if needed
-        return true;
+    function openModal(imageUrl, modelName, resolution, price, timeTaken) {
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('modalImage');
+        const modalModelName = document.getElementById('modalModelName');
+        const modalResolution = document.getElementById('modalResolution');
+        const modalPrice = document.getElementById('modalPrice');
+        const modalTimeTaken = document.getElementById('modalTimeTaken');
+
+        modal.style.display = "block";
+        modalImg.src = imageUrl;
+        modalModelName.textContent = "Model: " + modelName;
+        modalResolution.textContent = "Resolution: " + resolution;
+        modalPrice.textContent = "Price: $" + price;
+        modalTimeTaken.textContent = "Time Taken: " + timeTaken + "s";
     }
 
-    function submitWithNotes(side) {
-        const notes = document.getElementById('rankingNotes').value;
-        document.getElementById('notesInput' + side.charAt(0).toUpperCase() + side.slice(1)).value = notes;
-        return validateSubmission(side);
+    function closeModal() {
+        const modal = document.getElementById('imageModal');
+        modal.style.display = "none";
     }
 
-    function toggleView() {
-        const inputSetView = document.getElementById('inputSetView');
-        const toggleButton = document.getElementById('toggleButton');
-        
-        if (inputSetView.style.display === 'none') {
-            inputSetView.style.display = 'block';
-            toggleButton.textContent = 'Show Output';
-        } else {
-            inputSetView.style.display = 'none';
-            toggleButton.textContent = 'Show Input';
+    // Close modal when clicking outside the image
+    window.onclick = function(event) {
+        const modal = document.getElementById('imageModal');
+        if (event.target === modal) {
+            closeModal();
         }
+    }
+
+    // Close modal with escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === "Escape") {
+            closeModal();
+        }
+    });
+
+    let currentTryonId = null;
+
+    function showNotesPrompt(tryonId) {
+        currentTryonId = tryonId;
+        const notesPrompt = document.getElementById('notesPrompt');
+        notesPrompt.style.display = "block";
+    }
+
+    function closeNotesPrompt() {
+        const notesPrompt = document.getElementById('notesPrompt');
+        notesPrompt.style.display = "none";
+    }
+
+    function submitWithNotes() {
+        const notes = document.getElementById('rankingNotes').value;
+        document.getElementById('notesInput' + currentTryonId).value = notes;
+        document.querySelector('form[onsubmit="return promptForNotes(' + currentTryonId + ')"]').submit();
+    }
+
+    function promptForNotes(tryonId) {
+        showNotesPrompt(tryonId);
+        return false;
     }
 </script>
 {% endblock %} 

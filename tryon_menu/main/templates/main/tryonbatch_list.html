@@ -9,7 +9,7 @@
         <button class="tab-button" onclick="filterBatches('video')">Video</button>
     </div>
     <div class="batch-grid" id="batchGrid">
-        {% for batch in batches %}
+        {% for batch in batches|slice:":10" %}
         <div class="batch-card" data-mode="{{ batch.tryons.first.mode }}">
             <div class="batch-header">
                 <h3>{{ batch.name }}</h3>
@@ -22,6 +22,7 @@
             {% with first_tryon=batch.tryons.first %}
             {% if first_tryon %}
             <div class="images-grid">
+                {% if first_tryon.mode == 'image' %}
                 <div class="input-images">
                     <div class="thumbnail">
                         <img src="{{ first_tryon.input_set.garment_thumbnail_url|default:first_tryon.input_set.garment_image }}" alt="Garment">
@@ -36,6 +37,16 @@
                     <img src="{{ first_tryon.thumbnail_url|default:first_tryon.image_path }}" alt="Tryon Result">
                     <span>Result</span>
                 </div>
+                {% elif first_tryon.mode == 'video' %}
+                <div class="input-images">
+                    <div class="thumbnail">
+                        <img src="{{ first_tryon.input_set.model_thumbnail_url|default:first_tryon.input_set.model_image }}" alt="Model">
+                        <span>Model</span>
+                    </div>
+                    <p class="prompt">{{ first_tryon.input_set.prompt }}</p>
+                </div>
+                
+                {% endif %}
             </div>
             {% endif %}
             {% endwith %}
@@ -47,6 +58,15 @@
         {% empty %}
         <p>No tryon batches found.</p>
         {% endfor %}
+    </div>
+    <div class="pagination">
+        {% if batches.has_previous %}
+        <a href="?page={{ batches.previous_page_number }}" class="btn">Previous</a>
+        {% endif %}
+        <span>Page {{ batches.number }} of {{ batches.paginator.num_pages }}</span>
+        {% if batches.has_next %}
+        <a href="?page={{ batches.next_page_number }}" class="btn">Next</a>
+        {% endif %}
     </div>
 </div>
 
@@ -63,6 +83,13 @@
     }
     // Default to showing all batches
     filterBatches('all');
+
+    function loadVideo(videoElement, url) {
+        if (!videoElement.querySelector('source').src) {
+            videoElement.querySelector('source').src = url;
+            videoElement.load();
+        }
+    }
 </script>
 
 <style>
@@ -84,6 +111,12 @@
         padding: 20px;
         border-radius: 8px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        overflow: hidden;
+        transition: transform 0.2s;
+    }
+
+    .batch-card:hover {
+        transform: translateY(-2px);
     }
 
     .batch-header h3 {
@@ -119,7 +152,7 @@
         text-align: center;
     }
 
-    .thumbnail img, .result-image img {
+    .thumbnail img, .result-image img, .result-image video {
         width: 100%;
         height: 150px;
         object-fit: contain;
@@ -157,6 +190,12 @@
 
     .btn-primary:hover {
         background-color: #0056b3;
+    }
+
+    .prompt {
+        margin-top: 10px;
+        font-size: 0.9em;
+        color: #666;
     }
 </style>
 {% endblock %} 

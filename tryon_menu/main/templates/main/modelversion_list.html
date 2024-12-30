@@ -3,13 +3,26 @@
 {% block content %}
 <div class="container-fluid p-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Model Leaderboard</h2>
-        <a href="{% url 'batch_selection' %}" class="btn btn-primary">Rank Models</a>
+        <div>
+            <h2>Model Leaderboard</h2>
+            {% if not user.is_authenticated %}
+                <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-primary">Sign In For Ranking</a>
+            {% else %}
+                <a href="{% url 'batch_selection' %}" class="btn btn-primary">Start Ranking</a>
+            {% endif %}
+        </div>
+        </br>
+        
+        <div class="filter-options">
+            <button onclick="filterModels('all')" class="btn btn-secondary">All</button>
+            <button onclick="filterModels('image')" class="btn btn-secondary">Image</button>
+            <button onclick="filterModels('video')" class="btn btn-secondary">Video</button>
+        </div>
     </div>
     
     <div class="table-responsive">
-        <table class="table table-hover align-middle">
-            <thead>
+        <table class="table table-hover align-middle table-striped">
+            <thead class="table-dark">
                 <tr>
                     <th style="width: 8%">Rank</th>
                     <th style="width: 10%">ELO Rating</th>
@@ -24,7 +37,7 @@
             </thead>
             <tbody>
                 {% for version in model_versions %}
-                <tr>
+                <tr data-type="{{ version.model.model_type }}">
                     <td class="fw-bold">{{ forloop.counter }}</td>
                     <td class="fw-bold {% if version.elo_rating > 1500 %}text-success{% elif version.elo_rating < 1500 %}text-danger{% endif %}">
                         {{ version.elo_rating }}
@@ -59,55 +72,48 @@
     </div>
 </div>
 
-<style>
-.table {
-    margin-bottom: 0;
-}
-.table th {
-    background-color: #f8f9fa;
-    border-top: none;
-    padding: 1rem;
-}
-.table td {
-    padding: 1rem;
-    vertical-align: middle;
-}
-.btn-dark {
-    min-width: 80px;
-}
-</style>
-
-{% if not user.is_authenticated %}
-<!-- Login Modal -->
-<div class="modal fade" id="loginModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Sign in Required</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p>You need to sign in to rank model versions.</p>
-            </div>
-            <div class="modal-footer">
-                <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-primary">Sign In</a>
-                <a href="{% url 'signup' %}" class="btn btn-outline-primary">Sign Up</a>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const rankButton = document.querySelector('a[href="{% url "batch_selection" %}"]');
-    if (rankButton) {
-        rankButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            var modal = new bootstrap.Modal(document.getElementById('loginModal'));
-            modal.show();
+    function filterModels(type) {
+        const rows = document.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            if (type === 'all' || row.getAttribute('data-type') === type) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
         });
     }
-});
 </script>
-{% endif %}
+
+<style>
+    .filter-options {
+        display: flex;
+        gap: 10px;
+    }
+    .table {
+        margin-bottom: 0;
+    }
+    .table th, .table td {
+        padding: 1rem;
+        vertical-align: middle;
+    }
+    .table-striped tbody tr:nth-of-type(odd) {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+    .table-hover tbody tr:hover {
+        background-color: rgba(0, 0, 0, 0.075);
+    }
+    .table-dark {
+        background-color: #343a40;
+        color: #fff;
+    }
+    .table-dark th {
+        border-color: #454d55;
+    }
+    .btn-dark {
+        min-width: 80px;
+    }
+</style>
+
+
 {% endblock %} 

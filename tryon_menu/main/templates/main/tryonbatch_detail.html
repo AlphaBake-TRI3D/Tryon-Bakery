@@ -15,7 +15,14 @@
 
     <div class="comparison-grid">
         <!-- Input Set Images -->
+        
+            
+            
+        
         <div class="input-images">
+            <a href="{% url 'comparison_view' batch_id=batch.id %}" class="btn btn-primary">Rank This Batch</a>
+            </br>
+            </br>
             {% if batch.tryons.first.mode == 'video' %}
             <div class="image-container">
                 <h4>Model Image</h4>
@@ -91,6 +98,8 @@
             {% endfor %}
         </div>
     </div>
+
+    
 </div>
 
 <!-- Modal -->

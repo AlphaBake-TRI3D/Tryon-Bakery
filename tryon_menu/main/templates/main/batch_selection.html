@@ -11,6 +11,8 @@
                     <h5 class="card-title">{{ batch.name }}</h5>
                     <p class="card-text">{{ batch.description|truncatewords:30 }}</p>
                     <p class="card-text"><small class="text-muted">Created: {{ batch.created_at|date:"Y-m-d H:i" }}</small></p>
+                    <p class="card-text">Ranked: {{ batch.done }} / {{ batch.total_pairs }}</p>
+                    <p class="card-text">Unranked: {{ batch.to_be_done }}</p>
                     <a href="{% url 'comparison_view' batch_id=batch.id %}" class="btn btn-primary">Rank This Batch</a>
                 </div>
             </div>

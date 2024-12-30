@@ -9,16 +9,8 @@ from tryon_menu.aws_constants import (
     AWS_S3_REGION_NAME
 )
 
-class Organization(models.Model):
-    name = models.CharField(max_length=200)
-    description = models.TextField(blank=True)
-    created_at = models.DateTimeField(default=timezone.now)
-
-    def __str__(self):
-        return self.name
 
 class Model(models.Model):
-    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name='models')
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     url = models.URLField(max_length=500, blank=True, help_text="URL to the model's documentation or source")
@@ -30,7 +22,7 @@ class Model(models.Model):
     model_type = models.CharField(max_length=10, choices=MODEL_TYPE_CHOICES, default='image')
 
     def __str__(self):
-        return f"{self.organization.name} - {self.name}"
+        return self.name
 
 class ModelVersion(models.Model):
     model = models.ForeignKey(Model, on_delete=models.CASCADE, related_name='versions')

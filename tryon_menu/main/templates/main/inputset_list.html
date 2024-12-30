@@ -4,11 +4,17 @@
 {% block content %}
 <div class="inputset-list-container">
     <h2>Input Sets</h2>
+    <div class="filter-options">
+        <a href="?filter=all" class="btn">All</a>
+        <a href="?filter=image" class="btn">Images</a>
+        <a href="?filter=video" class="btn">Videos</a>
+    </div>
     <div class="inputset-grid">
-        {% for inputset in inputsets %}
+        {% for inputset in inputsets|slice:":10" %}
         <a href="{% url 'inputset_detail' inputset.id %}" class="inputset-card-link">
             <div class="inputset-card">
                 <div class="image-container">
+                    {% if inputset.mode == 'image' %}
                     <div class="image-wrapper">
                         <img src="{{ inputset.garment_thumbnail_url|default:inputset.garment_image }}" alt="Garment" class="thumbnail">
                         <span class="image-label">Garment</span>
@@ -17,6 +23,13 @@
                         <img src="{{ inputset.model_thumbnail_url|default:inputset.model_image }}" alt="Model" class="thumbnail">
                         <span class="image-label">Model</span>
                     </div>
+                    {% elif inputset.mode == 'video' %}
+                    <div class="image-wrapper">
+                        <img src="{{ inputset.model_thumbnail_url|default:inputset.model_image }}" alt="Model" class="thumbnail">
+                        <span class="image-label">Model</span>
+                    </div>
+                    <p class="prompt">{{ inputset.prompt }}</p>
+                    {% endif %}
                 </div>
                 <div class="inputset-info">
                     <h3>{{ inputset.name }}</h3>
@@ -30,6 +43,15 @@
             <p>No input sets found. <a href="{% url 'upload_images' %}" class="btn-primary">Create one</a></p>
         </div>
         {% endfor %}
+    </div>
+    <div class="pagination">
+        {% if inputsets.has_previous %}
+        <a href="?page={{ inputsets.previous_page_number }}" class="btn">Previous</a>
+        {% endif %}
+        <span>Page {{ inputsets.number }} of {{ inputsets.paginator.num_pages }}</span>
+        {% if inputsets.has_next %}
+        <a href="?page={{ inputsets.next_page_number }}" class="btn">Next</a>
+        {% endif %}
     </div>
 </div>
 
@@ -68,16 +90,19 @@
         display: flex;
         gap: 10px;
         padding: 10px;
+        align-items: center;
     }
 
     .image-wrapper {
         flex: 1;
         text-align: center;
+        min-height: 200px;
     }
 
     .thumbnail {
         width: 100%;
-        height: 600px;
+        height: auto;
+        max-height: 300px;
         object-fit: contain;
         border-radius: 4px;
     }
@@ -112,6 +137,31 @@
         padding: 40px;
         background: white;
         border-radius: 8px;
+    }
+
+    .filter-options {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .filter-options .btn {
+        margin: 0 10px;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+    }
+
+    .filter-options .btn:hover {
+        background-color: #0056b3;
+    }
+
+    .prompt {
+        margin-top: 10px;
+        font-size: 0.9em;
+        color: #666;
+        flex: 2;
     }
 </style>
 {% endblock %} 

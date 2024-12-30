@@ -222,60 +222,20 @@ The Elo rating system is implemented to provide a dynamic and fair method of ran
 - **Advanced Metrics**: Consider integrating additional metrics to complement the Elo rating system for a more comprehensive analysis.
 - **User Feedback**: Incorporate user feedback to refine the rating system and ensure it accurately reflects model performance.
 
+## Feature: Model Version Filtering
 
+### Description
+Users can filter model versions by type (Image/Video) on the leaderboard page.
 
-   564 tryon_menu/documentation/comparision-basic.html
-    93 tryon_menu/main/templates/main/modelversion_detail.html
-   166 tryon_menu/main/templates/main/tryonbatch_create_step1.html
-   413 tryon_menu/main/templates/main/comparison.html
-    97 tryon_menu/main/templates/main/base.html
-    24 tryon_menu/main/templates/main/batch_selection.html
-   244 tryon_menu/main/templates/main/tryonbatch_detail.html
-   100 tryon_menu/main/templates/main/upload_images.html
-   125 tryon_menu/main/templates/main/navbar.html
-   106 tryon_menu/main/templates/main/auth/password_reset_confirm.html
-   128 tryon_menu/main/templates/main/auth/login.html
-   134 tryon_menu/main/templates/main/auth/signup.html
-   146 tryon_menu/main/templates/main/auth/password_reset.html
-   142 tryon_menu/main/templates/main/index.html
-   102 tryon_menu/main/templates/main/modelversion_list.html
-   201 tryon_menu/main/templates/main/inputset_detail.html
-   144 tryon_menu/main/templates/main/my_rankings.html
-   100 tryon_menu/main/templates/main/comparison_view.html
-   116 tryon_menu/main/templates/main/inputset_list.html
-   198 tryon_menu/main/templates/main/tryonbatch_create_step2.html
-  3343 total
+### Implementation
+- Frontend filtering using JavaScript in `modelversion_list.html`.
+- Backend support in `views.py` to provide necessary data.
 
- 22 tryon_menu/manage.py
-    3 tryon_menu/tryon_menu/aws_constants.py
-   16 tryon_menu/tryon_menu/asgi.py
-    0 tryon_menu/tryon_menu/__init__.py
-   16 tryon_menu/tryon_menu/wsgi.py
-   25 tryon_menu/tryon_menu/urls.py
-  135 tryon_menu/tryon_menu/settings.py
-   33 tryon_menu/tryon_menu/settings_local.py
-   42 tryon_menu/main/migrations/0008_alter_modelversion_options_modelversion_elo_rating_and_more.py
-   18 tryon_menu/main/migrations/0007_model_url.py
-  174 tryon_menu/main/migrations/0001_initial.py
-   21 tryon_menu/main/migrations/0004_inputset_created_by.py
-   28 tryon_menu/main/migrations/0003_inputset_garment_thumbnail_url_and_more.py
-   47 tryon_menu/main/migrations/0006_remove_inputset_garment_image_old_and_more.py
-    0 tryon_menu/main/migrations/__init__.py
-   26 tryon_menu/main/migrations/0002_passwordresettoken.py
-   33 tryon_menu/main/migrations/0009_rankedpair_loser_rating_after_and_more.py
-   69 tryon_menu/main/migrations/0005_remove_inputset_garment_image_and_more.py
-  503 tryon_menu/main/views.py
-    0 tryon_menu/main/__init__.py
-   36 tryon_menu/main/admin.py
-  237 tryon_menu/main/models.py
-    6 tryon_menu/main/apps.py
-   23 tryon_menu/main/urls.py
-    3 tryon_menu/main/tests.py
-    0 tryon_menu/main/management/__init__.py
-    0 tryon_menu/main/management/commands/__init__.py
-  114 tryon_menu/main/management/commands/setup_initial_data.py
-   82 tryon_menu/main/management/commands/nuke.py
-   65 tryon_menu/main/management/commands/generate_signed_urls.py
- 1777 total
+### User Stories
+- As a user, I want to filter model versions by type to easily find the models I am interested in.
+
+### Acceptance Criteria
+- Filter buttons for "All", "Image", and "Video" are present.
+- Clicking a filter button updates the displayed models without reloading the page.
 
 
