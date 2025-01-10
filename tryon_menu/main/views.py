@@ -213,11 +213,25 @@ def upload_images(request):
                 s3_client.upload_fileobj(model_image, AWS_STORAGE_BUCKET_NAME, model_key)
                 s3_client.upload_fileobj(model_thumbnail, AWS_STORAGE_BUCKET_NAME, model_thumb_key)
 
+                # Check if garment image should be uploaded
+                if not prompt and garment_image:
+                    garment_image.seek(0)
+                    garment_thumbnail = create_thumbnail(garment_image)
+                    garment_image.seek(0)
+                    garment_ext = garment_image.name.split('.')[-1]
+
+                    garment_key = f'garments/{timestamp}_{name}_garment.{garment_ext}'
+                    garment_thumb_key = f'thumbnails/garments/{timestamp}_{name}_garment_thumb.{garment_ext}'
+                    s3_client.upload_fileobj(garment_image, AWS_STORAGE_BUCKET_NAME, garment_key)
+                    s3_client.upload_fileobj(garment_thumbnail, AWS_STORAGE_BUCKET_NAME, garment_thumb_key)
+
                 # Create InputSet with S3 keys
                 input_set = InputSet.objects.create(
                     name=name,
                     model_key=model_key,
                     model_thumb_key=model_thumb_key,
+                    garment_key=garment_key if garment_key else None,
+                    garment_thumb_key=garment_thumb_key if garment_thumb_key else None,
                     created_by=request.user,
                     mode='video' if prompt else 'image',  # Determine mode based on prompt
                     prompt=prompt

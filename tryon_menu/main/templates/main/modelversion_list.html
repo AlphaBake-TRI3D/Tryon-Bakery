@@ -5,11 +5,14 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2>Model Leaderboard</h2>
+            <a href="{% url 'tryonbatch_list' %}" class="btn btn-primary">Tryon Batches</a>
+            <a href="{% url 'my_rankings' %}" class="btn btn-primary"> Rankings List </a>
             {% if not user.is_authenticated %}
                 <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-primary">Sign In For Ranking</a>
             {% else %}
                 <a href="{% url 'batch_selection' %}" class="btn btn-primary">Start Ranking</a>
             {% endif %}
+            
         </div>
         </br>
         

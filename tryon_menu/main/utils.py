@@ -56,7 +56,7 @@ def generate_tryon_via_api(input_set, model_version, s3_client):
     # Add model-specific parameters
     if model_version.tray_code == 'replicate':
         api_params.update({
-            'category': 'upper_body',
+            'category': 'dresses', #'upper_body' | 'lower_body' | 'dresses'
             'steps': 30,
             'seed': 42,
             'crop': False,
@@ -67,9 +67,14 @@ def generate_tryon_via_api(input_set, model_version, s3_client):
             'garment_image': input_set.garment_image,
             'model_image': input_set.model_image,
         })
-    elif model_version.tray_code in ['fashnai', 'klingai']:
+    elif model_version.tray_code == 'klingai':
         api_params.update({
-            'category': 'tops',
+            'category': 'dress', #upper, lower, and dress
+            'mode': 'quality'
+        })
+    elif model_version.tray_code in ['fashnai']:
+        api_params.update({
+            'category': 'one-pieces', #'tops' | 'bottoms' | 'one-pieces'
             'mode': 'quality'
         })
     
