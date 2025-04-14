@@ -26,7 +26,7 @@ SECRET_KEY = "django-insecure-i1pzg!r_b$3fj(teu=wktja7u8j__nx7j4klpr6vb#%1a$i%@k
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['bakery.tri3d.in']
 
 
 # Application definition
