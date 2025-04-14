@@ -28,6 +28,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['bakery.tri3d.in']
 
+# CSRF Settings
+CSRF_TRUSTED_ORIGINS = ['https://bakery.tri3d.in']
+
 
 # Application definition
 
