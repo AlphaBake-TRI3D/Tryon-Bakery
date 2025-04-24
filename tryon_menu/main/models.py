@@ -251,3 +251,17 @@ class RankedPair(models.Model):
         if self.loser_rating_before is not None and self.loser_rating_after is not None:
             return self.loser_rating_after - self.loser_rating_before
         return None
+
+class PageLogs(models.Model):
+    url = models.CharField(max_length=500)
+    accessed_at = models.DateTimeField(default=timezone.now)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.TextField(blank=True, null=True)
+    
+    class Meta:
+        verbose_name_plural = "Page Logs"
+        ordering = ['-accessed_at']
+
+    def __str__(self):
+        return f"{self.url} - {self.accessed_at}"

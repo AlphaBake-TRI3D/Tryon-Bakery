@@ -64,6 +64,15 @@
                                required>
                     </div>
                     <div class="form-group">
+                        <label for="time_taken_{{ model_version.id }}">Time Taken (seconds):</label>
+                        <input type="number" 
+                               id="time_taken_{{ model_version.id }}" 
+                               name="time_taken_{{ model_version.id }}" 
+                               class="form-control" 
+                               step="0.01" 
+                               min="0">
+                    </div>
+                    <div class="form-group">
                         <label for="notes_{{ model_version.id }}">Notes:</label>
                         <textarea id="notes_{{ model_version.id }}" 
                                   name="notes_{{ model_version.id }}" 

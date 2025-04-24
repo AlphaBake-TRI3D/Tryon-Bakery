@@ -2,23 +2,23 @@
 
 {% block content %}
 <div class="container-fluid p-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
         <div>
             <h2 class="mb-0">Rankings</h2>
             <a href="{% url 'batch_selection' %}" class="btn btn-primary">Start Ranking</a>
         </div>
         </br>
         
-        <div class="btn-group">
+        <div class="btn-group mt-2 mt-md-0">
             <a href="?tab=my{% if model_id %}&model_id={{ model_id }}{% endif %}" class="btn btn-outline-primary {% if active_tab == 'my' %}active{% endif %}">My Rankings</a>
             <a href="?tab=all{% if model_id %}&model_id={{ model_id }}{% endif %}" class="btn btn-outline-primary {% if active_tab == 'all' %}active{% endif %}">All Rankings</a>
         </div>
     </div>
     
     {% if model_id %}
-    <div class="alert alert-info d-flex justify-content-between align-items-center mb-3">
+    <div class="alert alert-info d-flex justify-content-between align-items-center mb-3 flex-wrap">
         <span>Showing rankings for selected model only</span>
-        <a href="?tab={{ active_tab }}" class="btn btn-sm btn-outline-secondary">Clear Filter</a>
+        <a href="?tab={{ active_tab }}" class="btn btn-sm btn-outline-secondary mt-2 mt-md-0">Clear Filter</a>
     </div>
     {% endif %}
     
@@ -97,7 +97,7 @@
             </tbody>
         </table>
     </div>
-
+    
     <!-- Pagination -->
     {% if page_obj.paginator.num_pages > 1 %}
     <div class="pagination-container mt-4">
@@ -259,6 +259,18 @@
     border-radius: 4px;
     font-size: 0.7rem;
     font-weight: bold;
+}
+
+/* Mobile styles - enable horizontal scrolling */
+@media (max-width: 768px) {
+    .mobile-rankings-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .image-comparison {
+        min-width: 320px; /* Minimum width to ensure content is visible */
+    }
 }
 </style>
 {% endblock %} 

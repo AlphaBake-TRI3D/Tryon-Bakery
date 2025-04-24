@@ -5,7 +5,13 @@
         <a href="{% url 'index' %}">Tryon Menu</a>
     </div>
     
-    <div class="nav-links">
+    <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+    </button>
+    
+    <div class="nav-links" id="nav-links">
         {% if user.is_authenticated %}
         <div class="dropdown">
             <button class="dropbtn">Lists</button>
@@ -129,4 +135,106 @@
     .dropdown:hover .dropbtn {
         background-color: #444;
     }
-</style> 
+
+    /* Mobile menu button */
+    .mobile-menu-btn {
+        display: none;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 0.5rem;
+    }
+
+    .hamburger-line {
+        display: block;
+        width: 25px;
+        height: 3px;
+        margin: 5px 0;
+        background-color: white;
+        border-radius: 3px;
+        transition: all 0.3s ease;
+    }
+
+    /* Responsive styles */
+    @media (max-width: 768px) {
+        .mobile-menu-btn {
+            display: block;
+            z-index: 1001;
+        }
+
+        .nav-links {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            flex-direction: column;
+            background-color: #333;
+            width: 70%;
+            height: 100vh;
+            padding-top: 60px;
+            transition: right 0.3s ease;
+            align-items: flex-start;
+            padding-left: 2rem;
+        }
+
+        .nav-links.active {
+            right: 0;
+        }
+
+        /* Adjust dropdown for mobile */
+        .dropdown {
+            width: 100%;
+        }
+
+        .dropdown-content {
+            position: static;
+            width: 100%;
+            display: none;
+            margin-top: 0.5rem;
+            box-shadow: none;
+        }
+
+        .dropdown.active .dropdown-content {
+            display: block;
+        }
+
+        .dropbtn {
+            width: 100%;
+            text-align: left;
+            padding: 0.5rem 0;
+        }
+
+        .nav-link {
+            width: 100%;
+            padding: 0.5rem 0;
+        }
+    }
+</style>
+
+<script>
+    function toggleMobileMenu() {
+        const navLinks = document.getElementById('nav-links');
+        navLinks.classList.toggle('active');
+    }
+
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', function(event) {
+        const navLinks = document.getElementById('nav-links');
+        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+        
+        if (!navLinks.contains(event.target) && event.target !== mobileMenuBtn && !mobileMenuBtn.contains(event.target)) {
+            navLinks.classList.remove('active');
+        }
+    });
+
+    // For mobile devices, make dropdowns toggleable with click
+    if (window.innerWidth <= 768) {
+        const dropdowns = document.querySelectorAll('.dropdown');
+        dropdowns.forEach(dropdown => {
+            const dropbtn = dropdown.querySelector('.dropbtn');
+            dropbtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                dropdown.classList.toggle('active');
+            });
+        });
+    }
+</script> 

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import  Model, ModelVersion, InputSet, Tryon, TryonBatch
+from .models import  Model, ModelVersion, InputSet, Tryon, TryonBatch, PageLogs
 
 
 @admin.register(Model)
@@ -30,3 +30,10 @@ class TryonBatchAdmin(admin.ModelAdmin):
     list_display = ('name', 'created_at')
     search_fields = ('name', 'description')
     filter_horizontal = ('tryons',)
+
+@admin.register(PageLogs)
+class PageLogsAdmin(admin.ModelAdmin):
+    list_display = ('url', 'accessed_at', 'user', 'ip_address')
+    list_filter = ('user', 'ip_address')
+    search_fields = ('url', 'user__username', 'ip_address')
+    readonly_fields = ('user', 'ip_address', 'user_agent')

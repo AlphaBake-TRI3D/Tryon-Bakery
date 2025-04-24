@@ -373,6 +373,7 @@ def create_tryonbatch_step2(request):
                     if file_key in request.FILES:
                         uploaded_file = request.FILES[file_key]
                         notes = request.POST.get(f'notes_{model_version.id}', '')  # Get notes from form
+                        time_taken = request.POST.get(f'time_taken_{model_version.id}', None)  # Get time taken from form
                         
                         # Generate unique filenames
                         timestamp = uuid.uuid4().hex[:8]
@@ -389,7 +390,7 @@ def create_tryonbatch_step2(request):
                                 image_key=video_key,  # Use video key
                                 thumb_key=None,  # No thumbnail for video
                                 is_generated_by_api=False,
-                                time_taken=None,
+                                time_taken=time_taken,
                                 resolution=None,
                                 price_per_inference=model_version.price_per_inference,
                                 notes=notes,  # Use the captured notes
@@ -433,7 +434,7 @@ def create_tryonbatch_step2(request):
                                 image_key=image_key,
                                 thumb_key=thumb_key,
                                 is_generated_by_api=False,
-                                time_taken=None,
+                                time_taken=time_taken,
                                 resolution=resolution,
                                 price_per_inference=model_version.price_per_inference,
                                 notes=notes,  # Use the captured notes
