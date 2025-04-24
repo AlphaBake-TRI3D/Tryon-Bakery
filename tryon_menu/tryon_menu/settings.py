@@ -26,10 +26,10 @@ SECRET_KEY = "django-insecure-i1pzg!r_b$3fj(teu=wktja7u8j__nx7j4klpr6vb#%1a$i%@k
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['bakery.tri3d.in']
+ALLOWED_HOSTS = ['bakery.tri3d.in','bakery.alphabake.io']
 
 # CSRF Settings
-CSRF_TRUSTED_ORIGINS = ['https://bakery.tri3d.in']
+CSRF_TRUSTED_ORIGINS = ['https://bakery.tri3d.in','https://bakery.alphabake.io']
 
 
 # Application definition
