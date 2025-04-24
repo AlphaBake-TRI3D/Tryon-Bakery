@@ -10,19 +10,27 @@
         </br>
         
         <div class="btn-group">
-            <a href="?tab=my" class="btn btn-outline-primary {% if active_tab == 'my' %}active{% endif %}">My Rankings</a>
-            <a href="?tab=all" class="btn btn-outline-primary {% if active_tab == 'all' %}active{% endif %}">All Rankings</a>
+            <a href="?tab=my{% if model_id %}&model_id={{ model_id }}{% endif %}" class="btn btn-outline-primary {% if active_tab == 'my' %}active{% endif %}">My Rankings</a>
+            <a href="?tab=all{% if model_id %}&model_id={{ model_id }}{% endif %}" class="btn btn-outline-primary {% if active_tab == 'all' %}active{% endif %}">All Rankings</a>
         </div>
     </div>
     
-    <div class="table-responsive">
+    {% if model_id %}
+    <div class="alert alert-info d-flex justify-content-between align-items-center mb-3">
+        <span>Showing rankings for selected model only</span>
+        <a href="?tab={{ active_tab }}" class="btn btn-sm btn-outline-secondary">Clear Filter</a>
+    </div>
+    {% endif %}
+    
+    <!-- Desktop table view (hidden on small screens) -->
+    <div class="table-responsive d-none d-md-block">
         <table class="table table-hover align-middle">
             <thead>
                 <tr>
                     <th style="width: 15%">Batch</th>
-                    <th style="width: 15%">Ranked By</th>
                     <th style="width: 20%">Winner</th>
                     <th style="width: 20%">Loser</th>
+                    <th style="width: 15%">Ranked By</th>
                     <th style="width: 15%">Notes</th>
                     <th style="width: 10%">Ranked At</th>
                     <th style="width: 5%">Actions</th>
@@ -31,9 +39,14 @@
             <tbody>
                 {% for ranking in page_obj %}
                 <tr>
-                    <td>{{ ranking.tryon_batch.name }}</td>
-                    <td>{{ ranking.user.username }}</td>
+                    <td><a href="{% url 'tryonbatch_detail' batch_id=ranking.tryon_batch.id %}">{{ ranking.tryon_batch.name }}</a></td>
+                    
                     <td>
+                        {% if ranking.winner_tryon.thumbnail_url %}
+                        <div class="mb-2">
+                            <img src="{{ ranking.winner_tryon.thumbnail_url }}" alt="Winner image" class="img-fluid rounded tryon-thumbnail">
+                        </div>
+                        {% endif %}
                         <strong>{{ ranking.winner_tryon.model_version.model.name }}</strong>
                         v{{ ranking.winner_tryon.model_version.version }}
                         {% if ranking.winner_rating_before %}
@@ -44,6 +57,11 @@
                         {% endif %}
                     </td>
                     <td>
+                        {% if ranking.loser_tryon.thumbnail_url %}
+                        <div class="mb-2">
+                            <img src="{{ ranking.loser_tryon.thumbnail_url }}" alt="Loser image" class="img-fluid rounded tryon-thumbnail">
+                        </div>
+                        {% endif %}
                         <strong>{{ ranking.loser_tryon.model_version.model.name }}</strong>
                         v{{ ranking.loser_tryon.model_version.version }}
                         {% if ranking.loser_rating_before %}
@@ -53,6 +71,7 @@
                         </div>
                         {% endif %}
                     </td>
+                    <td>{{ ranking.user.username }}</td>
                     <td>
                         {% if ranking.notes %}
                         <div class="text-muted" style="white-space: pre-wrap;">{{ ranking.notes }}</div>
@@ -81,36 +100,50 @@
 
     <!-- Pagination -->
     {% if page_obj.paginator.num_pages > 1 %}
-    <nav aria-label="Page navigation" class="mt-4">
-        <ul class="pagination justify-content-center">
-            {% if page_obj.has_previous %}
-            <li class="page-item">
-                <a class="page-link" href="?tab={{ active_tab }}&page={{ page_obj.previous_page_number }}">&laquo; Previous</a>
-            </li>
-            {% endif %}
-
-            {% for num in page_obj.paginator.page_range %}
-                {% if page_obj.number == num %}
-                    <li class="page-item active">
+    <div class="pagination-container mt-4">
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?tab={{ active_tab }}{% if model_id %}&model_id={{ model_id }}{% endif %}&page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link" aria-hidden="true">&laquo;</span>
+                </li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="page-item active" aria-current="page">
                         <span class="page-link">{{ num }}</span>
                     </li>
-                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
                     <li class="page-item">
-                        <a class="page-link" href="?tab={{ active_tab }}&page={{ num }}">{{ num }}</a>
+                        <a class="page-link" href="?tab={{ active_tab }}{% if model_id %}&model_id={{ model_id }}{% endif %}&page={{ num }}">{{ num }}</a>
                     </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?tab={{ active_tab }}{% if model_id %}&model_id={{ model_id }}{% endif %}&page={{ page_obj.next_page_number }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link" aria-hidden="true">&raquo;</span>
+                </li>
                 {% endif %}
-            {% endfor %}
-
-            {% if page_obj.has_next %}
-            <li class="page-item">
-                <a class="page-link" href="?tab={{ active_tab }}&page={{ page_obj.next_page_number }}">Next &raquo;</a>
-            </li>
-            {% endif %}
-        </ul>
-    </nav>
+            </ul>
+        </nav>
+    </div>
     {% endif %}
-
-    
 </div>
 
 <style>
@@ -147,6 +180,85 @@
     background-color: #0d6efd;
     border-color: #0d6efd;
     color: white;
+}
+.tryon-thumbnail {
+    max-width: 100%;
+    max-height: 150px;
+    border: 1px solid #dee2e6;
+}
+.pagination {
+    display: flex;
+    padding-left: 0;
+    list-style: none;
+    margin-bottom: 0;
+}
+.pagination-container {
+    display: flex;
+    justify-content: center;
+}
+.page-item {
+    margin: 0 2px;
+}
+.page-link {
+    position: relative;
+    display: block;
+    padding: 0.5rem 0.75rem;
+    line-height: 1.25;
+    color: #0d6efd;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+}
+.page-item.active .page-link {
+    z-index: 3;
+    color: #fff;
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+.page-item.disabled .page-link {
+    color: #6c757d;
+    pointer-events: none;
+    background-color: #fff;
+    border-color: #dee2e6;
+}
+/* Mobile card styles */
+.ranking-card .card {
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+.ranking-card .card-header {
+    background-color: #f8f9fa;
+    padding: 0.75rem 1rem;
+}
+.image-comparison .image-container {
+    position: relative;
+    margin-bottom: 0.5rem;
+    aspect-ratio: 1/1;
+    overflow: hidden;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+}
+.image-comparison img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.model-info {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.875rem;
+}
+.winner-badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: rgba(25, 135, 84, 0.8);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: bold;
 }
 </style>
 {% endblock %} 

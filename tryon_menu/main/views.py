@@ -19,6 +19,7 @@ from django.core.paginator import Paginator
 from io import BytesIO
 from django.urls import reverse
 from django.db.models import Count, Q, F
+from django.http import HttpResponse, JsonResponse
 
 def index_view(request):
     return redirect('modelversion_list')
@@ -562,6 +563,9 @@ def my_rankings(request):
     # Get the tab from query parameters, default to 'my'
     active_tab = request.GET.get('tab', 'all')
     
+    # Get model_id from query parameters if it exists
+    model_id = request.GET.get('model_id')
+    
     # Base query with all necessary related fields
     base_query = RankedPair.objects.select_related(
         'winner_tryon__model_version',
@@ -581,6 +585,14 @@ def my_rankings(request):
     else:  # 'all' tab
         rankings = base_query
     
+    # Filter by model_id if provided
+    if model_id:
+        # Filter rankings where either winner or loser contains the model_id
+        rankings = rankings.filter(
+            Q(winner_tryon__model_version__model__id=model_id) | 
+            Q(loser_tryon__model_version__model__id=model_id)
+        )
+    
     # Pagination
     paginator = Paginator(rankings, 20)  # Show 20 rankings per page
     page_number = request.GET.get('page', 1)
@@ -589,6 +601,7 @@ def my_rankings(request):
     context = {
         'page_obj': page_obj,
         'active_tab': active_tab,
+        'model_id': model_id,  # Pass model_id to the template
     }
     
     return render(request, 'main/my_rankings.html', context)

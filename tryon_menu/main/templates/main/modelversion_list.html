@@ -2,32 +2,29 @@
 
 {% block content %}
 <div class="container-fluid p-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2>Model Leaderboard</h2>
-            <a href="{% url 'tryonbatch_list' %}" class="btn btn-primary">Tryon Batches</a>
-            <a href="{% url 'my_rankings' %}" class="btn btn-primary"> Rankings List </a>
-            {% if not user.is_authenticated %}
-                <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-primary">Sign In For Ranking</a>
-            {% else %}
-                <a href="{% url 'batch_selection' %}" class="btn btn-primary">Start Ranking</a>
-            {% endif %}
-            
-        </div>
-    
-    
+    <h2>Leaderboard</h2>
+
+    <div>
+        <a href="{% url 'tryonbatch_list' %}" class="btn btn-primary">Batches</a>
+        <a href="{% url 'my_rankings' %}" class="btn btn-primary"> Rankings </a>
+        {% if not user.is_authenticated %}
+        <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-primary">Sign In For Ranking</a>
+        {% else %}
+            <a href="{% url 'batch_selection' %}" class="btn btn-primary">Start Ranking</a>
+        {% endif %}
     </div>
+    
     
     <div class="table-responsive">
         <table class="table table-hover align-middle table-striped">
             <thead class="table-dark">
                 <tr>
-                    <th style="width: 8%">Rank</th>
+                    
                     <th style="width: 10%">ELO Rating</th>
                     <th style="width: 15%">Model</th>
                     <th style="width: 10%">Version</th>
                     <th style="width: 10%">Resolution</th>
-                    <th style="width: 10%">API Status</th>
+                    
                     <th style="width: 10%">Price</th>
                     <th style="width: 20%">URL</th>
                     <th style="width: 10%">Actions</th>
@@ -36,20 +33,14 @@
             <tbody>
                 {% for version in model_versions %}
                 <tr data-type="{{ version.model.model_type }}">
-                    <td class="fw-bold">{{ forloop.counter }}</td>
+                    
                     <td class="fw-bold {% if version.elo_rating > 1500 %}text-success{% elif version.elo_rating < 1500 %}text-danger{% endif %}">
                         {{ version.elo_rating }}
                     </td>
-                    <td>{{ version.model.name }}</td>
+                    <td><a href="{% url 'my_rankings' %}?model_id={{ version.model.id }}" class="model-link">{{ version.model.name }}</a></td>
                     <td>{{ version.version }}</td>
                     <td>{{ version.resolution }}px</td>
-                    <td>
-                        {% if version.is_api_implemented %}
-                            <span class="badge bg-success">API Ready</span>
-                        {% else %}
-                            <span class="badge bg-secondary">Manual Upload</span>
-                        {% endif %}
-                    </td>
+                    
                     <td>${{ version.price_per_inference|floatformat:3 }}</td>
                     <td>
                         {% if version.model.url %}
@@ -109,7 +100,57 @@
         border-color: #454d55;
     }
     .btn-dark {
-        min-width: 80px;
+        min-width: 40px;
+    }
+
+    
+    
+    /* Mobile responsive styles */
+    @media (max-width: 767px) {
+        html, body {
+            font-size: 25px;
+        }
+        
+        .table {
+            font-size: 1.6rem;
+        }
+        
+        .btn {
+            font-size: 1rem;
+            padding: 0.3rem 0.5rem;
+        }
+        
+        h2 {
+            font-size: 1.75rem;
+        }
+        
+        .badge {
+            font-size: 0.8rem;
+        }
+        
+        .table th, .table td {
+            padding: 0.5rem;
+        }
+    }
+    
+    /* Small mobile devices */
+    @media (max-width: 480px) {
+        html, body {
+            font-size: 16px;
+        }
+        
+        .table {
+            font-size: 1.2rem;
+        }
+        
+        .btn {
+            font-size: 1rem;
+            padding: 0.25rem 0.4rem;
+        }
+        
+        h2 {
+            font-size: 1.5rem;
+        }
     }
 </style>
 
