@@ -1,0 +1,24 @@
+from dotenv import load_dotenv
+from tryon_tray.qc_api import QC
+load_dotenv()
+
+result = QC(
+    model_image="inputs/person.jpg",
+    garment_image="inputs/garment.jpeg",
+    tryon_image="inputs/tryon.png"
+    model_name="alphabake",
+    mode="full_issues" #full_issues, question
+    question="Is the body resemblance okay?", #What other garment changes will suit the shopper best
+    
+)
+
+from tryon_tray.fashion_agent_api import FashionAgent 
+result = FashionAgent_Simple(
+    image_generation_model= "alphabake147",
+    qc_model = "alphabake-qc-v1",
+    conversation_id = "",
+    database_path = ""  
+
+)
+
+
