@@ -35,4 +35,8 @@ def get_replicate_api_token() -> str:
 
 def get_vmodel_api_token() -> str:
     """Get VModel API token from environment variables."""
-    return get_env_or_raise("VMODEL_API_KEY") 
+    return get_env_or_raise("VMODEL_API_KEY")
+
+def get_alphabake_api_token() -> str:
+    """Get Alphabake API token from environment variables."""
+    return get_env_or_raise("ALPHABAKE_API_KEY") 

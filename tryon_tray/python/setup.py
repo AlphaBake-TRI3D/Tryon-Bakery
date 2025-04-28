@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="tryon-tray",
-    version="0.1.9",
+    version="0.2.1",
     author="Nitish",
     author_email="nitish@tri3d.in",
     description="A package for virtual try-on services integration",

@@ -14,7 +14,6 @@ pip install tryon-tray
 ```python
 # Load environment variables
 
-
 from dotenv import load_dotenv
 from tryon_tray.vton_api import VTON
 from datetime import datetime
@@ -22,7 +21,7 @@ load_dotenv()
 model_image = "inputs/person.jpg"
 garment_image = "inputs/garment.jpeg"
 
-#model_list = ["fashnai", "klingai","replicate"] 
+#model_list = ["fashnai", "klingai", "replicate", "alphabake"] 
 result = VTON(
     model_image=model_image,
     garment_image=garment_image,
@@ -36,7 +35,32 @@ result = VTON(
 )
 
 print("Time taken: ",result['timing']['time_taken'])
+```
 
+### Alphabake Example
+
+```python
+# Using Alphabake's virtual try-on API
+
+from dotenv import load_dotenv
+from tryon_tray.vton_api import VTON
+load_dotenv()
+
+result = VTON(
+    model_image="inputs/person.jpg",
+    garment_image="inputs/garment.jpeg",
+    model_name="alphabake",
+    auto_download=True,
+    download_path="result_alphabake.png",
+    show_polling_progress=True,
+    # Alphabake specific parameters
+    mode="balanced",  # Options: 'fast', 'balanced', or 'quality'
+    garment_name="garment-example",
+    tryon_name="tryon-example"
+)
+
+print(f"Result saved to: {result.get('local_path')}")
+print(f"Time taken: {result['timing']['time_taken']}")
 ```
 
 ## Features
@@ -53,6 +77,7 @@ Create a .env file with your API keys:
 FASHNAI_API_KEY=your_fashnai_key
 KLINGAI_API_KEY=your_klingai_key
 REPLICATE_API_TOKEN=your_replicate_token
+ALPHABAKE_API_KEY=your_alphabake_key
 ```
 
 ## Sample Response
@@ -72,13 +97,13 @@ REPLICATE_API_TOKEN=your_replicate_token
 
 - `model_image`: Path to the person/model image  
 - `garment_image`: Path to the garment image  
-- `model_name`: Service provider ("fashnai", "klingai", "replicate") 
+- `model_name`: Service provider ("fashnai", "klingai", "replicate", "alphabake") 
 - `auto_download`: Automatically download generated images  
 - `download_dir`: Directory for downloaded images  
 - `polling_interval`: Time between status checks (seconds)`
 - `show_polling_progress`: Show progressbar during generation   
 - `category`: Garment category ("tops", "dresses", etc.)  
-- `mode`: Generation mode ("quality" or "speed")  
+- `mode`: Generation mode ("quality" or "speed" for most APIs, "fast"/"balanced"/"quality" for alphabake)  
 - `adjust_hands`: Adjust hand positions in output  
 - `restore_background`: Preserve original image background 
 
