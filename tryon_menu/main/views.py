@@ -651,7 +651,7 @@ def batch_selection(request):
     return render(request, 'main/batch_selection.html', {'batches': batches})
 
 def tryonbatch_list(request):
-    batches = TryonBatch.objects.all().order_by('-created_at')
+    batches = TryonBatch.objects.all().order_by('-priority', '-created_at')
     paginator = Paginator(batches, 10)  # Show 10 batches per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)

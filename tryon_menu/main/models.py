@@ -171,6 +171,7 @@ class TryonBatch(models.Model):
     description = models.TextField(blank=True)
     tryons = models.ManyToManyField(Tryon, related_name='batches')
     created_at = models.DateTimeField(default=timezone.now)
+    priority = models.IntegerField(default=0)
 
     def __str__(self):
         return self.name
