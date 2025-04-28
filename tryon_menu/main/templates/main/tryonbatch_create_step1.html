@@ -41,6 +41,7 @@
             <label>Select Model Versions:</label>
             <div class="model-versions-grid">
                 {% for version in model_versions %}
+                {% if version.model.model_type == request.GET.mode %}
                 <div class="model-version-card">
                     <input type="checkbox" 
                            id="model_version_{{ version.id }}" 
@@ -52,12 +53,14 @@
                             <h4>{{ version.model.name }}</h4>
                             <p>Version: {{ version.version }}</p>
                             <p>Resolution: {{ version.resolution }}px</p>
+                            <p>Mode: {{ version.mode }}</p>
                             {% if version.description %}
                             <p class="description">{{ version.description }}</p>
                             {% endif %}
                         </div>
                     </label>
                 </div>
+                {% endif %}
                 {% endfor %}
             </div>
         </div>

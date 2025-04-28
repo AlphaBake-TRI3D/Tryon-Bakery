@@ -4,9 +4,13 @@
 {% block content %}
 <div class="container">
     <h2>Tryon Batches</h2>
-    <div class="batch-grid">
+    <div class="tabs">
+        <button class="tab-button" onclick="filterBatches('image')">Image</button>
+        <button class="tab-button" onclick="filterBatches('video')">Video</button>
+    </div>
+    <div class="batch-grid" id="batchGrid">
         {% for batch in batches %}
-        <div class="batch-card">
+        <div class="batch-card" data-mode="{{ batch.tryons.first.mode }}">
             <div class="batch-header">
                 <h3>{{ batch.name }}</h3>
                 <p class="meta">Created on: {{ batch.created_at|date:"M d, Y" }}</p>
@@ -45,6 +49,21 @@
         {% endfor %}
     </div>
 </div>
+
+<script>
+    function filterBatches(mode) {
+        const batches = document.querySelectorAll('.batch-card');
+        batches.forEach(batch => {
+            if (batch.getAttribute('data-mode') === mode || mode === 'all') {
+                batch.style.display = 'block';
+            } else {
+                batch.style.display = 'none';
+            }
+        });
+    }
+    // Default to showing all batches
+    filterBatches('all');
+</script>
 
 <style>
     .container {

@@ -11,6 +11,16 @@
     <div class="input-set-preview">
         <h3>Selected Input Set: {{ input_set.name }}</h3>
         <div class="images">
+            {% if request.GET.mode == 'video' %}
+            <div class="image">
+                <img src="{{ input_set.model_thumbnail_url|default:input_set.model_image }}" alt="Model">
+                <span>Model</span>
+            </div>
+            <div class="prompt">
+                <h4>Prompt</h4>
+                <p>{{ input_set.prompt }}</p>
+            </div>
+            {% else %}
             <div class="image">
                 <img src="{{ input_set.garment_thumbnail_url|default:input_set.garment_image }}" alt="Garment">
                 <span>Garment</span>
@@ -19,6 +29,7 @@
                 <img src="{{ input_set.model_thumbnail_url|default:input_set.model_image }}" alt="Model">
                 <span>Model</span>
             </div>
+            {% endif %}
         </div>
     </div>
 
@@ -36,8 +47,8 @@
                     <div class="api-status">
                         <span class="badge bg-success">API Ready</span>
                     </div>
-                    <p>This model will automatically generate the tryon image using its API ({{ model_version.tray_code }}).</p>
-                    <p class="api-info">No manual upload required. The image will be generated when you create the batch.</p>
+                    <p>This model will automatically generate the tryon {{ tryonbatch_data.mode }} using its API ({{ model_version.tray_code }}).</p>
+                    <p class="api-info">No manual upload required. The {{ tryonbatch_data.mode }} will be generated when you create the batch.</p>
                 </div>
                 {% else %}
                 <div class="upload-section">
@@ -49,7 +60,7 @@
                         <input type="file" 
                                id="model_version_{{ model_version.id }}" 
                                name="model_version_{{ model_version.id }}" 
-                               accept="image/*" 
+                               accept="{% if tryonbatch_data.mode == 'image' %}image/*{% else %}video/*{% endif %}" 
                                required>
                     </div>
                     <div class="form-group">

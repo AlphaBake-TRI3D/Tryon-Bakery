@@ -17,6 +17,7 @@ from tryon_menu.aws_constants import (
 )
 from django.core.paginator import Paginator
 from io import BytesIO
+from django.urls import reverse
 
 def index_view(request):
     return redirect('modelversion_list')
@@ -178,8 +179,9 @@ def upload_images(request):
         name = request.POST.get('name')
         garment_image = request.FILES.get('garment_image')
         model_image = request.FILES.get('model_image')
+        prompt = request.POST.get('prompt', '')  # Get prompt for video mode
 
-        if name and garment_image and model_image:
+        if name and model_image:
             try:
                 # Initialize S3 client
                 s3_client = boto3.client(
@@ -190,40 +192,32 @@ def upload_images(request):
                 )
 
                 # Create thumbnails
-                garment_image.seek(0)
                 model_image.seek(0)
-                garment_thumbnail = create_thumbnail(garment_image)
                 model_thumbnail = create_thumbnail(model_image)
 
                 # Reset file pointers
-                garment_image.seek(0)
                 model_image.seek(0)
 
                 # Generate unique filenames
                 timestamp = uuid.uuid4().hex[:8]
-                garment_ext = garment_image.name.split('.')[-1]
                 model_ext = model_image.name.split('.')[-1]
-                
+
                 # Create S3 keys
-                garment_key = f'garments/{timestamp}_{name}_garment.{garment_ext}'
                 model_key = f'models/{timestamp}_{name}_model.{model_ext}'
-                garment_thumb_key = f'thumbnails/garments/{timestamp}_{name}_garment_thumb.{garment_ext}'
                 model_thumb_key = f'thumbnails/models/{timestamp}_{name}_model_thumb.{model_ext}'
 
                 # Upload files to S3
-                s3_client.upload_fileobj(garment_image, AWS_STORAGE_BUCKET_NAME, garment_key)
                 s3_client.upload_fileobj(model_image, AWS_STORAGE_BUCKET_NAME, model_key)
-                s3_client.upload_fileobj(garment_thumbnail, AWS_STORAGE_BUCKET_NAME, garment_thumb_key)
                 s3_client.upload_fileobj(model_thumbnail, AWS_STORAGE_BUCKET_NAME, model_thumb_key)
 
                 # Create InputSet with S3 keys
                 input_set = InputSet.objects.create(
                     name=name,
-                    garment_key=garment_key,
                     model_key=model_key,
-                    garment_thumb_key=garment_thumb_key,
                     model_thumb_key=model_thumb_key,
-                    created_by=request.user
+                    created_by=request.user,
+                    mode='video' if prompt else 'image',  # Determine mode based on prompt
+                    prompt=prompt
                 )
 
                 return redirect('inputset_detail', inputset_id=input_set.id)
@@ -244,6 +238,7 @@ def inputset_detail(request, inputset_id):
 
 @login_required
 def create_tryonbatch_step1(request):
+    mode = request.GET.get('mode', 'image')  # Default to image if mode is not specified
     if request.method == 'POST':
         name = request.POST.get('name')
         description = request.POST.get('description')
@@ -256,12 +251,13 @@ def create_tryonbatch_step1(request):
                 'name': name,
                 'description': description,
                 'input_set_id': input_set_id,
-                'model_version_ids': model_version_ids
+                'model_version_ids': model_version_ids,
+                'mode': mode  # Use mode from URL
             }
-            return redirect('create_tryonbatch_step2')
+            return redirect(f"{reverse('create_tryonbatch_step2')}?mode={mode}")  # Append mode manually
     
-    input_sets = InputSet.objects.all().order_by('-created_at')
-    model_versions = ModelVersion.objects.all().select_related('model').order_by('-created_at')
+    input_sets = InputSet.objects.filter(mode=mode).order_by('-created_at')  # Filter by mode
+    model_versions = ModelVersion.objects.filter(model__model_type=mode).select_related('model').order_by('-created_at')  # Filter by mode
     
     return render(request, 'main/tryonbatch_create_step1.html', {
         'input_sets': input_sets,
@@ -270,11 +266,11 @@ def create_tryonbatch_step1(request):
 
 @login_required
 def create_tryonbatch_step2(request):
-    from main.utils import generate_tryon_via_api
+    from main.utils import generate_tryon_via_api, generate_video_via_api
     # Get data from session
     tryonbatch_data = request.session.get('tryonbatch_data')
     if not tryonbatch_data:
-        return redirect('create_tryonbatch_step1')
+        return redirect(f"{reverse('create_tryonbatch_step1')}?mode={request.GET.get('mode', 'image')}")  # Append mode manually
     
     if request.method == 'POST':
         try:
@@ -298,76 +294,125 @@ def create_tryonbatch_step2(request):
             # Process each model version
             for model_version in model_versions:
                 if model_version.is_api_implemented:
-                    # Use API to generate tryon
-                    try:
-                        image_key, thumb_key, resolution, time_taken = generate_tryon_via_api(input_set, model_version, s3_client)
-                        
-                        # Create Tryon object with API results
-                        tryon = Tryon.objects.create(
-                            input_set=input_set,
-                            model_version=model_version,
-                            image_key=image_key,
-                            thumb_key=thumb_key,
-                            is_generated_by_api=True,
-                            time_taken=time_taken,
-                            resolution=resolution,
-                            price_per_inference=model_version.price_per_inference,
-                            notes=""  # Empty string for text field
-                        )
-                        batch.tryons.add(tryon)
-                    except Exception as e:
-                        # Log the error but continue with other models
-                        print(f"API error for {model_version}: {str(e)}")
-                        continue
+                    if tryonbatch_data['mode'] == 'video':
+                        # Use API to generate video
+                        try:
+                            video_key, time_taken = generate_video_via_api(input_set, model_version, s3_client)
+                            
+                            # Create Tryon object with video results
+                            tryon = Tryon.objects.create(
+                                input_set=input_set,
+                                model_version=model_version,
+                                image_key=video_key,  # Use video key
+                                thumb_key=None,  # No thumbnail for video
+                                is_generated_by_api=True,
+                                time_taken=time_taken,
+                                resolution=None,
+                                price_per_inference=model_version.price_per_inference,
+                                notes="",  # Use the captured notes
+                                mode=tryonbatch_data['mode']  # Set mode
+                            )
+                            batch.tryons.add(tryon)
+                        except Exception as e:
+                            # Log the error but continue with other models
+                            print(f"API error for {model_version}: {str(e)}")
+                            continue
+                    else:
+                        # Use API to generate tryon
+                        try:
+                            image_key, thumb_key, resolution, time_taken = generate_tryon_via_api(input_set, model_version, s3_client)
+                            
+                            # Create Tryon object with API results
+                            tryon = Tryon.objects.create(
+                                input_set=input_set,
+                                model_version=model_version,
+                                image_key=image_key,
+                                thumb_key=thumb_key,
+                                is_generated_by_api=True,
+                                time_taken=time_taken,
+                                resolution=resolution,
+                                price_per_inference=model_version.price_per_inference,
+                                notes="",  # Empty string for text field
+                                mode=tryonbatch_data['mode']  # Set mode
+                            )
+                            batch.tryons.add(tryon)
+                        except Exception as e:
+                            # Log the error but continue with other models
+                            print(f"API error for {model_version}: {str(e)}")
+                            continue
                 else:
                     # Handle manual upload
-                    image_key = f'model_version_{model_version.id}'
-                    if image_key in request.FILES:
-                        image = request.FILES[image_key]
+                    file_key = f'model_version_{model_version.id}'
+                    if file_key in request.FILES:
+                        uploaded_file = request.FILES[file_key]
                         notes = request.POST.get(f'notes_{model_version.id}', '')  # Get notes from form
-                        
-                        # Create thumbnail and get resolution
-                        image.seek(0)
-                        with Image.open(image) as img:
-                            # Create thumbnail
-                            thumbnail = img.copy()
-                            thumbnail.thumbnail((600, 600))
-                            thumb_buffer = BytesIO()
-                            thumbnail.save(thumb_buffer, format='JPEG')
-                            thumb_buffer.seek(0)
-                            
-                            # Get resolution
-                            width, height = img.size
-                            resolution = f"{width}x{height}"
-                        
-                        # Reset file pointer
-                        image.seek(0)
                         
                         # Generate unique filenames
                         timestamp = uuid.uuid4().hex[:8]
-                        image_ext = image.name.split('.')[-1]
                         
-                        # Create S3 keys
-                        image_key = f'tryons/{timestamp}_{batch.name}_{model_version.id}.{image_ext}'
-                        thumb_key = f'thumbnails/tryons/{timestamp}_{batch.name}_{model_version.id}_thumb.{image_ext}'
-                        
-                        # Upload to S3
-                        s3_client.upload_fileobj(image, AWS_STORAGE_BUCKET_NAME, image_key)
-                        s3_client.upload_fileobj(thumb_buffer, AWS_STORAGE_BUCKET_NAME, thumb_key)
-                        
-                        # Create Tryon object
-                        tryon = Tryon.objects.create(
-                            input_set=input_set,
-                            model_version=model_version,
-                            image_key=image_key,
-                            thumb_key=thumb_key,
-                            is_generated_by_api=False,
-                            time_taken=None,
-                            resolution=resolution,
-                            price_per_inference=model_version.price_per_inference,
-                            notes=notes  # Use the captured notes
-                        )
-                        batch.tryons.add(tryon)
+                        if tryonbatch_data['mode'] == 'video':
+                            # Handle video file
+                            video_key = f'tryons/{timestamp}_{batch.name}_{model_version.id}.mp4'
+                            s3_client.upload_fileobj(uploaded_file, AWS_STORAGE_BUCKET_NAME, video_key)
+                            
+                            # Create Tryon object
+                            tryon = Tryon.objects.create(
+                                input_set=input_set,
+                                model_version=model_version,
+                                image_key=video_key,  # Use video key
+                                thumb_key=None,  # No thumbnail for video
+                                is_generated_by_api=False,
+                                time_taken=None,
+                                resolution=None,
+                                price_per_inference=model_version.price_per_inference,
+                                notes=notes,  # Use the captured notes
+                                mode=tryonbatch_data['mode']  # Set mode
+                            )
+                            batch.tryons.add(tryon)
+                        else:
+                            # Handle image file
+                            uploaded_file.seek(0)
+                            with Image.open(uploaded_file) as img:
+                                # Create thumbnail
+                                thumbnail = img.copy()
+                                thumbnail.thumbnail((600, 600))
+                                thumb_buffer = BytesIO()
+                                thumbnail.save(thumb_buffer, format='JPEG')
+                                thumb_buffer.seek(0)
+                                
+                                # Get resolution
+                                width, height = img.size
+                                resolution = f"{width}x{height}"
+                            
+                            # Reset file pointer
+                            uploaded_file.seek(0)
+                            
+                            # Generate unique filenames
+                            timestamp = uuid.uuid4().hex[:8]
+                            image_ext = uploaded_file.name.split('.')[-1]
+                            
+                            # Create S3 keys
+                            image_key = f'tryons/{timestamp}_{batch.name}_{model_version.id}.{image_ext}'
+                            thumb_key = f'thumbnails/tryons/{timestamp}_{batch.name}_{model_version.id}_thumb.{image_ext}'
+                            
+                            # Upload to S3
+                            s3_client.upload_fileobj(uploaded_file, AWS_STORAGE_BUCKET_NAME, image_key)
+                            s3_client.upload_fileobj(thumb_buffer, AWS_STORAGE_BUCKET_NAME, thumb_key)
+                            
+                            # Create Tryon object
+                            tryon = Tryon.objects.create(
+                                input_set=input_set,
+                                model_version=model_version,
+                                image_key=image_key,
+                                thumb_key=thumb_key,
+                                is_generated_by_api=False,
+                                time_taken=None,
+                                resolution=resolution,
+                                price_per_inference=model_version.price_per_inference,
+                                notes=notes,  # Use the captured notes
+                                mode=tryonbatch_data['mode']  # Set mode
+                            )
+                            batch.tryons.add(tryon)
             
             # Clear session data
             del request.session['tryonbatch_data']

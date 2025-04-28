@@ -23,6 +23,11 @@ class Model(models.Model):
     description = models.TextField(blank=True)
     url = models.URLField(max_length=500, blank=True, help_text="URL to the model's documentation or source")
     created_at = models.DateTimeField(default=timezone.now)
+    MODEL_TYPE_CHOICES = [
+        ('image', 'Image'),
+        ('video', 'Video'),
+    ]
+    model_type = models.CharField(max_length=10, choices=MODEL_TYPE_CHOICES, default='image')
 
     def __str__(self):
         return f"{self.organization.name} - {self.name}"
@@ -37,6 +42,7 @@ class ModelVersion(models.Model):
     is_api_implemented = models.BooleanField(default=False)
     tray_code = models.CharField(max_length=50, blank=True, help_text="Code used in tryon-tray package")
     price_per_inference = models.FloatField(default=0.04, help_text="Cost in USD per API call")
+    model_type = models.CharField(max_length=10, choices=Model.MODEL_TYPE_CHOICES, default='image')
 
     def __str__(self):
         return f"{self.model.name} v{self.version}"
@@ -52,6 +58,12 @@ class InputSet(models.Model):
     model_thumb_key = models.CharField(max_length=500, help_text="S3 key for model thumbnail", null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='input_sets')
+    MODE_CHOICES = [
+        ('image', 'Image'),
+        ('video', 'Video'),
+    ]
+    mode = models.CharField(max_length=10, choices=MODE_CHOICES, default='image')
+    prompt = models.TextField(blank=True, help_text="Prompt for video generation")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -114,6 +126,11 @@ class Tryon(models.Model):
     time_taken = models.FloatField(null=True, blank=True, help_text="Time taken in seconds for API generation")
     resolution = models.CharField(max_length=20, help_text="Image resolution in format WIDTHxHEIGHT", null=True, blank=True)
     price_per_inference = models.FloatField(null=True, blank=True, help_text="Cost in USD for this inference")
+    MODE_CHOICES = [
+        ('image', 'Image'),
+        ('video', 'Video'),
+    ]
+    mode = models.CharField(max_length=10, choices=MODE_CHOICES, default='image')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

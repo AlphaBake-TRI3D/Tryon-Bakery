@@ -12,16 +12,7 @@
     </div>
 
     <div class="images-container">
-        <div class="image-card">
-            <h3>Garment Image</h3>
-            <div class="image-wrapper" onclick="openModal('{{ inputset.garment_image }}')">
-                <img src="{{ inputset.garment_thumbnail_url|default:inputset.garment_image }}" alt="Garment" class="thumbnail">
-                <div class="image-overlay">
-                    <span>Click to view full size</span>
-                </div>
-            </div>
-        </div>
-
+        {% if inputset.mode == 'video' %}
         <div class="image-card">
             <h3>Model Image</h3>
             <div class="image-wrapper" onclick="openModal('{{ inputset.model_image }}')">
@@ -31,6 +22,30 @@
                 </div>
             </div>
         </div>
+        <div class="prompt-card">
+            <h3>Prompt</h3>
+            <p>{{ inputset.prompt }}</p>
+        </div>
+        {% else %}
+        <div class="image-card">
+            <h3>Garment Image</h3>
+            <div class="image-wrapper" onclick="openModal('{{ inputset.garment_image }}')">
+                <img src="{{ inputset.garment_thumbnail_url|default:inputset.garment_image }}" alt="Garment" class="thumbnail">
+                <div class="image-overlay">
+                    <span>Click to view full size</span>
+                </div>
+            </div>
+        </div>
+        <div class="image-card">
+            <h3>Model Image</h3>
+            <div class="image-wrapper" onclick="openModal('{{ inputset.model_image }}')">
+                <img src="{{ inputset.model_thumbnail_url|default:inputset.model_image }}" alt="Model" class="thumbnail">
+                <div class="image-overlay">
+                    <span>Click to view full size</span>
+                </div>
+            </div>
+        </div>
+        {% endif %}
     </div>
 </div>
 

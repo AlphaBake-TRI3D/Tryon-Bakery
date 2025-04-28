@@ -19,8 +19,10 @@
         <div class="dropdown">
             <button class="dropbtn">Create</button>
             <div class="dropdown-content">
-                <a href="{% url 'upload_images' %}">Input Set</a>
-                <a href="{% url 'create_tryonbatch_step1' %}">Tryon Batch</a>
+                <a href="{% url 'upload_images' %}?mode=image">Create Input Set Image</a>
+                <a href="{% url 'upload_images' %}?mode=video">Create Input Set Video</a>
+                <a href="{% url 'create_tryonbatch_step1' %}?mode=image">Create Tryon Batch Image</a>
+                <a href="{% url 'create_tryonbatch_step1' %}?mode=video">Create Tryon Batch Video</a>
             </div>
         </div>
         <a href="{% url 'logout' %}" class="nav-link">Logout</a>
