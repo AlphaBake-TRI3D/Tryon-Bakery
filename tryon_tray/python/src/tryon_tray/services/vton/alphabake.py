@@ -18,7 +18,7 @@ class AlphabakeVTON(BaseVTON):
         if not self.api_key:
             self.api_key = get_alphabake_api_token()
         
-        base_url = kwargs.get("base_url", "https://loras-main.tri3d.in/")
+        base_url = kwargs.get("base_url", "https://app.alphabake.io/")
         self.client = AlphabakeAPIClient(api_key=self.api_key, base_url=base_url)
         self._tryon_pk = None
         self.start_time = None
