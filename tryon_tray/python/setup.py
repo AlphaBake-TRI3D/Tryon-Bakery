@@ -5,13 +5,13 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="tryon-tray",
-    version="0.2.4",
+    version="0.2.4.1",
     author="Nitish Reddy Parvatham",
     author_email="nitish@alphabake.io",
     description="A package for virtual try-on services integration",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/AlphaBake-TRI3D/Tryon-Bakery",
+    url="https://www.alphabake.io/",
     package_dir={"": "src"},
     packages=find_namespace_packages(where="src", include=["tryon_tray*"]),
     classifiers=[
