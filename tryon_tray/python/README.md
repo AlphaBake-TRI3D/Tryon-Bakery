@@ -10,35 +10,6 @@ pip install tryon-tray
 ```
 
 ## Usage
-
-```python
-# Load environment variables
-
-from dotenv import load_dotenv
-from tryon_tray.vton_api import VTON
-from datetime import datetime
-load_dotenv()
-model_image = "inputs/person.jpg"
-garment_image = "inputs/garment.jpeg"
-
-#model_list = ["fashnai", "klingai", "replicate", "alphabake"] 
-result = VTON(
-    model_image=model_image,
-    garment_image=garment_image,
-    model_name="fashnai", 
-    auto_download=True,
-    download_path="result.jpg",
-    show_polling_progress=True,
-    # Optional parameters
-    category="tops",
-    mode="quality",
-)
-
-print("Time taken: ",result['timing']['time_taken'])
-```
-
-### Alphabake Example
-
 ```python
 # Using Alphabake's virtual try-on API
 
@@ -59,8 +30,43 @@ result = VTON(
     tryon_name="tryon-example"
 )
 
-print(f"Result saved to: {result.get('local_path')}")
+print(f"Result saved to: {result.get('local_paths')}")
 print(f"Time taken: {result['timing']['time_taken']}")
+```
+
+### Exploring Available Models
+
+```python
+# Discover available models and their parameters
+from tryon_tray import get_available_models, get_model_params, get_model_sample_config
+
+# List all available models
+all_models = get_available_models()
+print("Available models:", all_models)
+
+# List just the virtual try-on models
+vton_models = get_available_models(category="vton")
+print("VTON models:", vton_models)
+
+# List video models
+video_models = get_available_models(category="video")
+print("Video models:", video_models)
+
+# Get parameters for a specific model
+alphabake_params = get_model_params("alphabake")
+print("Alphabake parameters:", alphabake_params)
+
+# Get a sample configuration for a model
+sample_config = get_model_sample_config("klingai")
+print("Sample KlingAI config:", sample_config)
+
+# Use the sample config directly
+from dotenv import load_dotenv
+from tryon_tray import VTON
+load_dotenv()
+
+config = get_model_sample_config("fashnai")
+result = VTON(model_name="fashnai", **config)
 ```
 
 ## Features
@@ -68,6 +74,7 @@ print(f"Time taken: {result['timing']['time_taken']}")
 - Multiple VTON service providers support  
 - Automatic image downloading   
 - Progress tracking 
+- Model discovery and parameter exploration
 
 ## Configuration
 

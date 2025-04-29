@@ -11,7 +11,7 @@ from pathlib import Path
 class AlphabakeAPIClient:
     """Client for interacting with the Alphabake API."""
     
-    def __init__(self, api_key: str, base_url: str = "https://loras-main.tri3d.in/"):
+    def __init__(self, api_key: str, base_url: str = "https://app.alphabake.io/"):
         """Initialize the Alphabake API client."""
         self.api_key = api_key
         self.base_url = base_url
