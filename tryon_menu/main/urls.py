@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views
+from . import views, views_comparision
 
 urlpatterns = [
     path('', views.index_view, name='index'),
@@ -22,4 +22,7 @@ urlpatterns = [
     path('password-reset/', views.password_reset_view, name='password_reset'),
     path('reset-password/<str:token>/', views.password_reset_confirm_view, name='password_reset_confirm'),
     path('batch/list/', views.tryonbatch_list, name='tryonbatch_list'),
+
+
+    path('compare/', views_comparision.compare, name='compare'),
 ] 

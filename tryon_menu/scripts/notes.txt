@@ -1,0 +1,3 @@
+export FAL_KEY=e6b516c9-5d0d-444c-b0bc-8c405c088d35:a0ec309a72b560c9394d
+
+this needs to be done for tunning api-fashnai.py

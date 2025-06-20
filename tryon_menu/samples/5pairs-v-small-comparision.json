@@ -1,0 +1,42 @@
+{
+    "h1__g41": {
+        "name": "h1__g41",
+        "human": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/Scale/5pairs-v-small/h1__g41/human.jpg",
+        "garment": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/Scale/5pairs-v-small/h1__g41/garment.jpg",
+        "alphabake150-fast": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/5pairs-v-small/alphabake150-fast/h1__g41.jpg",
+        "alphabake150-quality": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/5pairs-v-small/alphabake150-quality/h1__g41.jpg",
+        "fashnai-quality": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/5pairs-v-small/fashnai-quality/h1__g41.jpg"
+    },
+    "h2__g19": {
+        "name": "h2__g19",
+        "human": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/Scale/5pairs-v-small/h2__g19/human.jpg",
+        "garment": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/Scale/5pairs-v-small/h2__g19/garment.jpg",
+        "alphabake150-fast": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/5pairs-v-small/alphabake150-fast/h2__g19.jpg",
+        "alphabake150-quality": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/5pairs-v-small/alphabake150-quality/h2__g19.jpg",
+        "fashnai-quality": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/5pairs-v-small/fashnai-quality/h2__g19.jpg"
+    },
+    "h1__g21": {
+        "name": "h1__g21",
+        "human": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/Scale/5pairs-v-small/h1__g21/human.jpg",
+        "garment": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/Scale/5pairs-v-small/h1__g21/garment.jpg",
+        "alphabake150-fast": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/5pairs-v-small/alphabake150-fast/h1__g21.jpg",
+        "alphabake150-quality": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/5pairs-v-small/alphabake150-quality/h1__g21.jpg",
+        "fashnai-quality": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/5pairs-v-small/fashnai-quality/h1__g21.jpg"
+    },
+    "h2__g21": {
+        "name": "h2__g21",
+        "human": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/Scale/5pairs-v-small/h2__g21/human.jpg",
+        "garment": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/Scale/5pairs-v-small/h2__g21/garment.jpg",
+        "alphabake150-fast": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/5pairs-v-small/alphabake150-fast/h2__g21.jpg",
+        "alphabake150-quality": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/5pairs-v-small/alphabake150-quality/h2__g21.jpg",
+        "fashnai-quality": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/5pairs-v-small/fashnai-quality/h2__g21.jpg"
+    },
+    "h2__g4": {
+        "name": "h2__g4",
+        "human": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/Scale/5pairs-v-small/h2__g4/human.jpg",
+        "garment": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/Scale/5pairs-v-small/h2__g4/garment.jpg",
+        "alphabake150-fast": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/5pairs-v-small/alphabake150-fast/h2__g4.jpg",
+        "alphabake150-quality": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/5pairs-v-small/alphabake150-quality/h2__g4.jpg",
+        "fashnai-quality": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/5pairs-v-small/fashnai-quality/h2__g4.jpg"
+    }
+}

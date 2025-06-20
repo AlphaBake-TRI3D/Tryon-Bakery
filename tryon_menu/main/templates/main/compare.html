@@ -1,0 +1,38 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <h1 class="my-4">Comparison</h1>
+
+    {% for item in comparisons %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3>{{ item.name }}</h3>
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered text-center">
+                    <thead>
+                        <tr>
+                            <th>Garment</th>
+                            <th>Human</th>
+                            {% for model in models_list %}
+                                <th>{{ model }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><img src="{{ item.garment }}" alt="Garment" class="img-fluid rounded" style="max-height: 300px;"></td>
+                            <td><img src="{{ item.human }}" alt="Human" class="img-fluid rounded" style="max-height: 300px;"></td>
+                            {% for image_url in item.model_images %}
+                                    <td><img src="{{ image_url }}" alt="Model output" class="img-fluid rounded" style="max-height: 300px;"></td>
+                            {% endfor %}
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %} 
