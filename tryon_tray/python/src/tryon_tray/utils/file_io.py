@@ -62,4 +62,16 @@ def download_file(url: str, output_path: Union[str, Path], chunk_size: int = 819
         return str(output_path)
     except Exception as e:
         print(f"Error downloading file: {e}")
-        return None 
+        return None
+
+def download_image(url: str, output_path: Union[str, Path]) -> Optional[str]:
+    """Download image from URL to specified path.
+    
+    Args:
+        url: URL to download from
+        output_path: Path to save image to
+        
+    Returns:
+        Path to downloaded image if successful, None otherwise
+    """
+    return download_file(url, output_path) 
