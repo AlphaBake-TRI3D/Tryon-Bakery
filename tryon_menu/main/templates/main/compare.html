@@ -1,38 +1,478 @@
 {% extends 'main/base.html' %}
-{% load static %}
+
+{% block styles %}
+<style>
+table.table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    border-radius: 12px;
+    overflow: hidden;
+}
+table.table th, table.table td {
+    padding: 16px 12px;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: middle;
+}
+table.table th {
+    background: linear-gradient(90deg, #f8fafc 0%, #e0e7ef 100%);
+    color: #222;
+    font-weight: 700;
+    font-size: 1.1em;
+    border-bottom: 2px solid #e0e7ef;
+}
+table.table tr:last-child td {
+    border-bottom: none;
+}
+table.table tbody tr:hover {
+    background: #f3f6fa;
+    transition: background 0.2s;
+}
+table.table img {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border-radius: 8px;
+    border: 1px solid #e0e7ef;
+}
+/* Modal styles */
+.img-modal {
+    display: none;
+    position: fixed !important;
+    z-index: 9999 !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    overflow: auto;
+    background: rgba(0,0,0,0.8);
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+}
+.img-modal.active {
+    display: flex !important;
+    opacity: 1;
+    transform: scale(1);
+}
+.img-modal-content {
+    max-height: 90vh;
+    max-width: 95vw;
+    margin: auto;
+    display: block;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+    transform: translateY(20px);
+    transition: transform 0.3s ease-out;
+}
+.img-modal.active .img-modal-content {
+    transform: translateY(0);
+}
+.img-modal-close {
+    position: absolute;
+    top: 24px;
+    right: 36px;
+    color: #fff;
+    font-size: 2.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 1100;
+    text-shadow: 0 2px 8px #000;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+}
+.img-modal.active .img-modal-close {
+    opacity: 1;
+    transform: scale(1);
+}
+.modal-images-container {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    align-items: flex-start;
+    flex-wrap: nowrap;
+    max-width: 95vw;
+    max-height: 90vh;
+}
+.modal-image-item {
+    flex: 1 1 0;
+    text-align: center;
+    min-width: 0;
+}
+.img-modal.active .modal-images-container {
+    opacity: 1;
+    transform: translateY(0);
+}
+.modal-image-item h4 {
+    color: #fff;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+    text-shadow: 0 2px 4px #000;
+}
+.modal-image-item .img-modal-content {
+    max-height: 70vh;
+    max-width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+}
+.modal-row {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    justify-content: center;
+}
+@media (min-width: 768px) {
+    .input-image{
+        max-width: 150px;
+    }
+}
+@media (max-width: 768px) {
+    #singleImageModalContent{
+        max-height: unset !important;
+    }
+  .container {
+    max-width: 100vw !important;
+    width: 100vw !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .card-body {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  .card {
+    border-radius: 0 !important;
+  }
+  table.table, .table.table-bordered {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    min-width: 0 !important;
+    table-layout: fixed !important;
+    box-shadow: none;
+    border-radius: 0;
+  }
+  table.table th, table.table td {
+    width: auto !important;
+    max-width: 1px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 4px 2px;
+    font-size: 0.6em;
+  }
+  table.table img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+  }
+  .modal-images-container {
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: flex-start;
+  }
+  .model-output-image-item{
+    transform: scale(0.7);
+    margin-top: -4em;
+  }
+  .modal-image-item {
+    flex: 1 1 38vw;
+    max-width: 48vw;
+    margin: 0;
+    padding: 0;
+  }
+  .modal-images-container .modal-image-item:nth-child(3) {
+    flex-basis: 100vw;
+    max-width: 100vw;
+  }
+  .modal-image-item h4 {
+    font-size: 1em;
+  }
+  .img-modal-content {
+    max-width: 100%;
+    max-height: 40vw;
+    margin: 0 auto;
+  }
+}
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="container">
     <h1 class="my-4">Comparison</h1>
 
-    {% for item in comparisons %}
-        <div class="card mb-4">
-            <div class="card-header">
-                <h3>{{ item.name }}</h3>
-            </div>
-            <div class="card-body">
-                <table class="table table-bordered text-center">
-                    <thead>
-                        <tr>
-                            <th>Garment</th>
-                            <th>Human</th>
+    <div class="card mb-4">
+        <div class="card-body p-0">
+            <table class="table table-bordered text-center mb-0">
+                <thead>
+                    <tr>
+                        <th style="width: 10%;">Name</th>
+                        <th style="width: 10%;">Garment</th>
+                        <th style="width: 10%;">Human</th>
+                        <th style="width: 10%;"></th>
+                        {% if models_list %}
                             {% for model in models_list %}
                                 <th>{{ model }}</th>
                             {% endfor %}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><img src="{{ item.garment }}" alt="Garment" class="img-fluid rounded" style="max-height: 300px;"></td>
-                            <td><img src="{{ item.human }}" alt="Human" class="img-fluid rounded" style="max-height: 300px;"></td>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in comparisons %}
+                    <tr>
+                        <td class="align-middle" style="cursor: pointer;" onclick="openAllModelOutputs('{{ item.model_images|join:',' }}', '{{ models_list|join:',' }}')">
+                            <strong>{{ item.name }}</strong>
+                        </td>
+                        <td>
+                                <img src="{{ item.garment }}" alt="Garment" class="img-fluid rounded responsive-img input-image" style="max-height: 300px;cursor:pointer;" onclick="handleImageClick(this, '{{ item.garment }}', '{{ item.garment }}', '{{ item.human }}', '{{ item.model_images|join:',' }}', '{{ models_list|join:',' }}', 'garment')">
+                        </td>
+                        <td>
+                            <img src="{{ item.human }}" alt="Human" class="img-fluid rounded responsive-img" style="max-height: 300px;cursor:pointer;" onclick="handleImageClick(this, '{{ item.human }}', '{{ item.garment }}', '{{ item.human }}', '{{ item.model_images|join:',' }}', '{{ models_list|join:',' }}', 'human')">
+                        </td>
+                        <td></td>
+                        {% if item.model_images %}
                             {% for image_url in item.model_images %}
-                                    <td><img src="{{ image_url }}" alt="Model output" class="img-fluid rounded" style="max-height: 300px;"></td>
+                                <td><img src="{{ image_url }}" alt="Model output" class="img-fluid rounded responsive-img" style="max-height: 300px; cursor:pointer;" onclick="handleImageClick(this, '{{ image_url }}', '{{ item.garment }}', '{{ item.human }}', '{{ item.model_images|join:',' }}', '{{ models_list|join:',' }}', 'output')"></td>
                             {% endfor %}
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+                        {% else %}
+                            <td colspan="{{ models_list|length }}">No model images available.</td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
-    {% endfor %}
+    </div>
 </div>
+
+<div id="imageModal" class="img-modal" >
+    <span class="img-modal-close">&times;</span>
+    <div class="modal-images-container" id="modalImagesContainer">
+        <div class="modal-image-item">
+            <h4>Garment</h4>
+            <img class="img-modal-content" id="modalGarment" src="" alt="Garment">
+        </div>
+        <div class="modal-image-item">
+            <h4>Human</h4>
+            <img class="img-modal-content" id="modalHuman" src="" alt="Human">
+        </div>
+        <div class="modal-image-item model-output-image-item">
+            <h4 id="modalImageTitle">Model Output</h4>
+            <img class="img-modal-content" id="modalImage" src="" alt="Model output">
+            <button id="nextModelOutputBtn" style="margin-top: 10px;">Next</button>
+        </div>
+    </div>
+    <!-- model outputs modal -->
+    <div id="modelOutputsModal" class="modal-images-container" style="display: none;">
+        <div class="modal-image-item">
+            <h4 id="modelOutput1Title">Model 1</h4>
+            <img class="img-modal-content" id="modelOutput1" src="" alt="Model output 1">
+        </div>
+        <div class="modal-image-item">
+            <h4 id="modelOutput2Title">Model 2</h4>
+            <img class="img-modal-content" id="modelOutput2" src="" alt="Model output 2">
+        </div>
+        <div class="modal-image-item">
+            <h4 id="modelOutput3Title">Model 3</h4>
+            <img class="img-modal-content" id="modelOutput3" src="" alt="Model output 3">
+        </div>
+    </div>
+    <!-- single image modal -->
+    <div id="singleImageModal" class="modal-images-container">
+        <img class="img-modal-content" id="singleImageModalContent" src="" alt="Single image">
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Define functions globally first
+// Global variables to track model outputs
+let modelOutputs = [];
+let modelTitles = [];
+let currentModelIndex = 0;
+
+function showModelOutput(index) {
+    const modalImg = document.getElementById('modalImage');
+    const modalImageTitle = document.getElementById('modalImageTitle');
+    if (modelOutputs.length > 0) {
+        modalImg.src = modelOutputs[index];
+        modalImageTitle.textContent = modelTitles.length > index ? modelTitles[index] : `Model Output ${index + 1}`;
+    }
+}
+
+function openModal(src) {
+    const modal = document.getElementById('imageModal');
+    const modalImagesContainer = document.getElementById('modalImagesContainer');
+    const singleImageModal = document.getElementById('singleImageModal');
+    const singleImageModalContent = document.getElementById('singleImageModalContent');
+
+    modal.classList.add('active');
+    singleImageModalContent.src = src;
+    modalImagesContainer.style.display = 'none';
+    singleImageModal.style.display = 'block';
+    singleImageModal.classList.add('active');
+
+    singleImageModalContent.src = src;
+}
+
+function openModalWithComparison(modelSrc, garmentSrc, humanSrc, allModelOutputsStr = '', allModelTitlesStr = '') {
+    // If allModelOutputsStr and allModelTitlesStr are provided, use them; else fallback to single image
+    
+    if (allModelOutputsStr && allModelTitlesStr && modelSrc == '') {
+        modelOutputs = allModelOutputsStr.split(',');
+        modelTitles = allModelTitlesStr.split(',');
+        currentModelIndex = modelOutputs.indexOf(modelSrc);
+        if (currentModelIndex === -1) currentModelIndex = 0;
+    } else {
+        modelOutputs = [modelSrc];
+        modelTitles = ['Model Output'];
+        if(allModelOutputsStr && allModelTitlesStr){
+            modelOutputs = allModelOutputsStr.split(',');
+            modelTitles = allModelTitlesStr.split(',');
+            // move modelsrc to the first index
+            const modelSrcIndex = modelOutputs.indexOf(modelSrc);
+            if (modelSrcIndex !== -1) {
+                modelOutputs.unshift(modelOutputs.splice(modelSrcIndex, 1)[0]);
+                modelTitles.unshift(modelTitles.splice(modelSrcIndex, 1)[0]);
+            }
+        }
+        currentModelIndex = 0;
+    }
+
+    const modal = document.getElementById('imageModal');
+    const modalImagesContainer = document.getElementById('modalImagesContainer');
+    const singleImageModal = document.getElementById('singleImageModal');
+    const modalGarment = document.getElementById('modalGarment');
+    const modalHuman = document.getElementById('modalHuman');
+
+    modalImagesContainer.style.display = 'flex';
+    singleImageModal.style.display = 'none';
+
+    modal.classList.add('active');
+    modalGarment.src = garmentSrc;
+    modalHuman.src = humanSrc;
+
+    showModelOutput(currentModelIndex);
+}
+
+function openAllModelOutputs(modelImagesStr, modelsStr) {
+    console.log("openAllModelOutputs", modelImagesStr, modelsStr);
+    // Split comma-separated strings into arrays
+    const modelImages = modelImagesStr.split(',');
+    const models = modelsStr.split(',');
+    const modal = document.getElementById('imageModal');
+    const modalImagesContainer = document.getElementById('modalImagesContainer');
+    const modelOutputsModal = document.getElementById('modelOutputsModal');
+    const singleImageModal = document.getElementById('singleImageModal');
+    // Hide other modal containers
+    modalImagesContainer.style.display = 'none';
+    singleImageModal.style.display = 'none';
+    modelOutputsModal.style.display = 'flex';
+    // Set model output images and titles
+    const modelOutput1 = document.getElementById('modelOutput1');
+    const modelOutput2 = document.getElementById('modelOutput2');
+    const modelOutput3 = document.getElementById('modelOutput3');
+    const modelOutput1Title = document.getElementById('modelOutput1Title');
+    const modelOutput2Title = document.getElementById('modelOutput2Title');
+    const modelOutput3Title = document.getElementById('modelOutput3Title');
+    if (modelImages.length >= 1) {
+        modelOutput1.src = modelImages[0];
+        modelOutput1Title.textContent = models.length >= 1 ? models[0] : 'Model 1';
+    }
+    if (modelImages.length >= 2) {
+        modelOutput2.src = modelImages[1];
+        modelOutput2Title.textContent = models.length >= 2 ? models[1] : 'Model 2';
+    }
+    if (modelImages.length >= 3) {
+        modelOutput3.src = modelImages[2];
+        modelOutput3Title.textContent = models.length >= 3 ? models[2] : 'Model 3';
+    }
+    modal.classList.add('active');
+}
+
+function handleImageClicks(self,img, garment, human, modelImages, models, is_output) {
+    if (window.innerWidth > 768) {
+        openModal(img.src);
+    } else {
+        console.log(modelImages,models);
+        openModalWithComparison('', garment, human, modelImages, models);
+    }
+}
+
+function handleImageClick(img, modelSrc, garment, human, modelImages, models, value) {
+    if (window.innerWidth > 768) {
+        if (value == 'output') {
+            console.log("handleModelImageClick", modelImages,'ddddddd');
+        openModalWithComparison(modelSrc, garment, human, modelImages, models);
+        }else{
+            openModal(img.src);
+        }
+    } else {
+        console.log('value',value);
+        if (value != 'output') {
+            console.log("handleModelImageClick", modelImages,'ddddddd');
+            openModalWithComparison(modelSrc, garment, human, modelImages, models);
+        }else {
+            openModal(img.src);
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('imageModal');
+    const closeBtn = document.querySelector('.img-modal-close');
+    // Next button logic
+    const nextBtn = document.getElementById('nextModelOutputBtn');
+    if (nextBtn) {
+        nextBtn.onclick = function() {
+            if (modelOutputs.length > 0) {
+                currentModelIndex = (currentModelIndex + 1) % modelOutputs.length;
+                showModelOutput(currentModelIndex);
+            }
+        };
+    }
+    // Function to close the modal
+    function closeModal() {
+        modal.classList.remove('active');
+        const modalImg = document.getElementById('modalImage');
+        const modalGarment = document.getElementById('modalGarment');
+        const modalHuman = document.getElementById('modalHuman');
+        const modelOutput1 = document.getElementById('modelOutput1');
+        const modelOutput2 = document.getElementById('modelOutput2');
+        const modelOutput3 = document.getElementById('modelOutput3');
+        const singleImageModalContent = document.getElementById('singleImageModalContent');
+        // Clear all image sources
+        modalImg.src = "";
+        modalGarment.src = "";
+        modalHuman.src = "";
+        modelOutput1.src = "";
+        modelOutput2.src = "";
+        modelOutput3.src = "";
+        singleImageModalContent.src = "";
+        // Reset modal displays
+        const modalImagesContainer = document.getElementById('modalImagesContainer');
+        const modelOutputsModal = document.getElementById('modelOutputsModal');
+        const singleImageModal = document.getElementById('singleImageModal');
+        modalImagesContainer.style.display = 'none';
+        modelOutputsModal.style.display = 'none';
+        singleImageModal.style.display = 'none';
+    }
+    // Assign close events
+    closeBtn.onclick = closeModal;
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+});
+</script>
 {% endblock %} 

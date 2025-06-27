@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tryon Bakery</title>
     {% load static %}
+    {% block styles %}
     <style>
         :root {
             --primary-color: #000000;
@@ -102,6 +103,7 @@
             }
         }
     </style>
+    {% endblock %}
 </head>
 <body>
     {% include 'main/navbar.html' %}
