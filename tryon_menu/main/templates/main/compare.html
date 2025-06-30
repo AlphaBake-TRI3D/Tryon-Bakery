@@ -34,7 +34,10 @@ table.table img {
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     border-radius: 8px;
     border: 1px solid #e0e7ef;
+    max-height: 300px;
+    cursor: pointer;
 }
+
 /* Modal styles */
 .img-modal {
     display: none;
@@ -127,9 +130,14 @@ table.table img {
 @media (min-width: 768px) {
     .input-image{
         max-width: 150px;
+        max-height: 150px;
     }
 }
 @media (max-width: 768px) {
+    .input-image{
+        max-width: 150px;
+        max-height: 150px;
+    }
     #singleImageModalContent{
         max-height: unset !important;
     }
@@ -165,9 +173,13 @@ table.table img {
   }
   table.table img {
     max-width: 100%;
+    max-height: 100px;
     height: auto;
     display: block;
-    margin: 0 auto;
+    margin: 0 0;
+  }
+  .is_desktop{
+    display: none;
   }
   .modal-images-container {
     flex-wrap: wrap;
@@ -176,7 +188,7 @@ table.table img {
   }
   .model-output-image-item{
     transform: scale(0.7);
-    margin-top: -4em;
+    margin-top: -4em !important;
   }
   .modal-image-item {
     flex: 1 1 38vw;
@@ -197,12 +209,83 @@ table.table img {
     margin: 0 auto;
   }
 }
+/* Add after existing styles */
+.model-image-badge-container {
+    position: relative;
+    display: inline-block;
+}
+.model-image-badges {
+    /* position: absolute; */
+    /* left: 50%; */
+    /* bottom: -38px; */
+    /* transform: translateX(-50%); */
+    display: flex;
+    flex-direction: column;
+    z-index: 2;
+    pointer-events: none;
+}
+.model-image-badge {
+    background: linear-gradient(90deg, #4f8cff 0%, #38e6c5 100%);
+    color: #fff;
+    font-size: 0.85em;
+    font-weight: 600;
+    border-radius: 12px;
+    padding: 2px 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    border: 1px solid #fff;
+    white-space: nowrap;
+    opacity: 0.95;
+    text-wrap-mode: wrap;
+}
+.model-image-badge[data-na="true"] {
+    background: #b0b0b0;
+    color: #fff;
+}
+.model-image-badge.badge-true {
+    background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
+    color: #fff;
+}
+.model-image-badge.badge-false {
+    background: linear-gradient(90deg, #ef4444 0%, #b91c1c 100%);
+    color: #fff;
+}
+.model-image-badge.badge-na {
+    background: #b0b0b0;
+    color: #fff;
+}
+.badge-selected {
+    outline: 2px solid #f59e42;
+    background: linear-gradient(90deg, #f59e42 0%, #fbbf24 100%) !important;
+    color: #222 !important;
+    box-shadow: 0 0 0 2px #fff, 0 2px 8px rgba(0,0,0,0.12);
+}
+.edit-mode .model-image-badge {
+    cursor: pointer;
+    opacity: 1 !important;
+    filter: none !important;
+    pointer-events: auto !important;
+    transition: outline 0.2s, background 0.2s;
+}
+.badge-row {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+}
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container">
     <h1 class="my-4">Comparison</h1>
+    {% if user.is_superuser %}
+    <div style="margin-bottom: 1em;">
+        <label style="font-weight:600;cursor:pointer;">
+            <input type="checkbox" id="editModeToggle" style="margin-right:8px;vertical-align:middle;"> Edit Mode
+        </label>
+        <!-- save button -->
+        <button id="saveBadgesBtn" class="btn btn-primary" style="margin-left: 1em;">Save</button>
+    </div>
+    {% endif %}
 
     <div class="card mb-4">
         <div class="card-body p-0">
@@ -212,7 +295,8 @@ table.table img {
                         <th style="width: 10%;">Name</th>
                         <th style="width: 10%;">Garment</th>
                         <th style="width: 10%;">Human</th>
-                        <th style="width: 10%;"></th>
+                        
+                        <th style="width: 10%;" class="is_desktop"></th>
                         {% if models_list %}
                             {% for model in models_list %}
                                 <th>{{ model }}</th>
@@ -227,15 +311,50 @@ table.table img {
                             <strong>{{ item.name }}</strong>
                         </td>
                         <td>
-                                <img src="{{ item.garment }}" alt="Garment" class="img-fluid rounded responsive-img input-image" style="max-height: 300px;cursor:pointer;" onclick="handleImageClick(this, '{{ item.garment }}', '{{ item.garment }}', '{{ item.human }}', '{{ item.model_images|join:',' }}', '{{ models_list|join:',' }}', 'garment')">
+                                <img src="{{ item.garment }}" alt="Garment" class="img-fluid rounded responsive-img input-image" style="max-height: 300px;cursor:pointer;" onclick="handleImageClick('{{ item.garment }}', '{{ item.garment }}', '{{ item.garment }}', '{{ item.human }}', '{{ item.images_alone|join:',' }}', '{{ models_list|join:',' }}', 'garment')">
                         </td>
                         <td>
-                            <img src="{{ item.human }}" alt="Human" class="img-fluid rounded responsive-img" style="max-height: 300px;cursor:pointer;" onclick="handleImageClick(this, '{{ item.human }}', '{{ item.garment }}', '{{ item.human }}', '{{ item.model_images|join:',' }}', '{{ models_list|join:',' }}', 'human')">
+                            <img src="{{ item.human }}" alt="Human" class="img-fluid rounded responsive-img input-image" style="max-height: 300px;cursor:pointer;" onclick="handleImageClick('{{ item.human }}', '{{ item.human }}', '{{ item.garment }}', '{{ item.human }}', '{{ item.images_alone|join:',' }}', '{{ models_list|join:',' }}', 'human')">
                         </td>
-                        <td></td>
+                        <td class="is_desktop"></td>
                         {% if item.model_images %}
-                            {% for image_url in item.model_images %}
-                                <td><img src="{{ image_url }}" alt="Model output" class="img-fluid rounded responsive-img" style="max-height: 300px; cursor:pointer;" onclick="handleImageClick(this, '{{ image_url }}', '{{ item.garment }}', '{{ item.human }}', '{{ item.model_images|join:',' }}', '{{ models_list|join:',' }}', 'output')"></td>
+                            {% for model_image in item.model_images %}
+                            <!-- loop index -->
+                                <td>
+                                    <div class="model-image-badge-container">
+                                        <img src="{{ model_image.url }}" alt="Model output" class="img-fluid rounded responsive-img"  onclick="handleImageClick('{{ model_image.url }}', '{{ model_image.url }}', '{{ item.garment }}', '{{ item.human }}', '{{ item.images_alone|join:',' }}', '{{ models_list|join:',' }}', 'output')">
+                                        <div class="model-image-badges">
+                                            <div class="badge-row" style="display: flex; gap: 6px; justify-content: center;">
+                                                <span class="model-image-badge {% if model_image.garment_realism|default:'N/A' == 'True' %}badge-true{% elif model_image.garment_realism|default:'N/A' == 'False' %}badge-false{% else %}badge-na{% endif %}"
+                                                      data-item="{{ item.name }}"
+                                                      data-model="{{ model_image.model_name }}"
+                                                      data-type="garment_realism">
+                                                    Garment Resemblance
+                                                </span>
+                                                <span class="model-image-badge {% if model_image.body_type_realism|default:'N/A' == 'True' %}badge-true{% elif model_image.body_type_realism|default:'N/A' == 'False' %}badge-false{% else %}badge-na{% endif %}"
+                                                      data-item="{{ item.name }}"
+                                                      data-model="{{ model_image.model_name }}"
+                                                      data-type="body_type_realism">
+                                                    Body Shape Resemblance
+                                                </span>
+                                            </div>
+                                            <div class="badge-row" style="display: flex; gap: 6px; justify-content: center; margin-top: 4px;">
+                                                <span class="model-image-badge {% if model_image.overall_realism|default:'N/A' == 'True' %}badge-true{% elif model_image.overall_realism|default:'N/A' == 'False' %}badge-false{% else %}badge-na{% endif %}"
+                                                      data-item="{{ item.name }}"
+                                                      data-model="{{ model_image.model_name }}"
+                                                      data-type="overall_realism">
+                                                    No Artifacts
+                                                </span>
+                                                <span class="model-image-badge {% if model_image.face_realism|default:'N/A' == 'True' %}badge-true{% elif model_image.face_realism|default:'N/A' == 'False' %}badge-false{% else %}badge-na{% endif %}"
+                                                      data-item="{{ item.name }}"
+                                                      data-model="{{ model_image.model_name }}"
+                                                      data-type="face_realism">
+                                                    Face Resemblance
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
                             {% endfor %}
                         {% else %}
                             <td colspan="{{ models_list|length }}">No model images available.</td>
@@ -404,12 +523,13 @@ function handleImageClicks(self,img, garment, human, modelImages, models, is_out
 }
 
 function handleImageClick(img, modelSrc, garment, human, modelImages, models, value) {
+    console.log("handleImageClick called", {img, modelSrc, garment, human, modelImages, models, value});
     if (window.innerWidth > 768) {
         if (value == 'output') {
             console.log("handleModelImageClick", modelImages,'ddddddd');
         openModalWithComparison(modelSrc, garment, human, modelImages, models);
         }else{
-            openModal(img.src);
+            openModal(img);
         }
     } else {
         console.log('value',value);
@@ -417,7 +537,7 @@ function handleImageClick(img, modelSrc, garment, human, modelImages, models, va
             console.log("handleModelImageClick", modelImages,'ddddddd');
             openModalWithComparison(modelSrc, garment, human, modelImages, models);
         }else {
-            openModal(img.src);
+            openModal(img);
         }
     }
 }
@@ -473,6 +593,96 @@ document.addEventListener('DOMContentLoaded', function() {
             closeModal();
         }
     });
+    // --- Edit mode and badge toggling ---
+    let editMode = false;
+    const editModeToggle = document.getElementById('editModeToggle');
+    if (editModeToggle) {
+        editModeToggle.addEventListener('change', function() {
+            editMode = this.checked;
+            document.body.classList.toggle('edit-mode', editMode);
+        });
+    }
+    // Cycle badge state: green (badge-true), red (badge-false), grey (badge-na)
+    function cycleBadgeState(badge) {
+        if (badge.classList.contains('badge-true')) {
+            badge.classList.remove('badge-true');
+            badge.classList.add('badge-false');
+        } else if (badge.classList.contains('badge-false')) {
+            badge.classList.remove('badge-false');
+            badge.classList.add('badge-na');
+        } else if (badge.classList.contains('badge-na')) {
+            badge.classList.remove('badge-na');
+            badge.classList.add('badge-true');
+        } else {
+            // Default to green if no class
+            badge.classList.add('badge-true');
+        }
+    }
+    function onBadgeClick(e) {
+        if (!editMode) return;
+        e.preventDefault();
+        cycleBadgeState(this);
+    }
+    // Add badge click listeners
+    document.querySelectorAll('.model-image-badge').forEach(function(badge) {
+        badge.addEventListener('click', onBadgeClick);
+    });
+    const saveBtn = document.getElementById('saveBadgesBtn');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', function() {
+            // Collect all badge states
+            const badges = document.querySelectorAll('.model-image-badge');
+            const badgeData = {};
+            badges.forEach(function(badge) {
+                const item = badge.getAttribute('data-item');
+                const model = badge.getAttribute('data-model');
+                const type = badge.getAttribute('data-type');
+                let value = null;
+                if (badge.classList.contains('badge-true')) value = true;
+                else if (badge.classList.contains('badge-false')) value = false;
+                else value = null;
+                // skip if the value is null
+                if (value === null) return;
+                if (!badgeData[item]) badgeData[item] = {};
+                if (!badgeData[item][model]) badgeData[item][model] = {};
+                badgeData[item][model][type] = value;
+            });
+            console.log("badgeData", badgeData);
+            // Send to backend
+            fetch('/save_badges/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify(badgeData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Badges saved!');
+                } else {
+                    alert('Failed to save badges.');
+                }
+            })
+            .catch(() => alert('Error saving badges.'));
+        });
+    }
+    // Helper to get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
 });
 </script>
 {% endblock %} 

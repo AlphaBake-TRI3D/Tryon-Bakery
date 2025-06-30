@@ -58,16 +58,16 @@ def upload_block(image_path, s3_key):
     return url, public_url
 
 
-input_images_dir = 'inputs/5pairs-v-small'
-input_images_json_path = 'outputs/5pairs-v-small.json'
+input_images_dir = 'outputs/42_pairs_benchmark'
+input_images_json_path = 'outputs/44_pairs_benchmark.json'
 
 input_images_json = json.load(open(input_images_json_path))
 
 
 models_dict = {
-    "alphabake150-fast": 'outputs/5pairs-v-small__alphabake150-fast/tryon/',
-    "alphabake150-quality": 'outputs/5pairs-v-small__alphabake150-quality/tryon/',
-    "fashnai-quality": 'outputs/5pairs-v-small__fashnai-quality/tryons/',
+    "alphabake150-quality": 'outputs/44_pairs_data__alphabake150-quality/',
+    "fashnai-quality": 'outputs/44_pairs_benchmark__fashnai-quality/tryons/',
+    "runwayml": 'outputs/44_pairs_benchmark__runwayml/tryons/',
 }
 
 comparision_json = {}
@@ -79,10 +79,17 @@ for cur_folder in input_images_json:
         'garment' : input_images_json[cur_folder]['garment_url'],
     }
     for model_name in models_dict:
-        url, public_url = upload_block(models_dict[model_name] + cur_folder + '.jpg', f'5pairs-v-small/{model_name}/{cur_folder}.jpg')
+        cur_path = models_dict[model_name] + cur_folder + '.jpg'
+        if 'runwayml' in model_name:
+            cur_path = models_dict[model_name] + cur_folder + '.png'
+        try:
+            url, public_url = upload_block(cur_path, f'44_pairs_data/{model_name}/{cur_folder}.jpg')
+        except Exception as e:
+            print(e)
+            continue
         comparision_json[cur_folder][model_name] = public_url
 
-with open('outputs/5pairs-v-small-comparision.json', 'w') as f:
+with open('outputs/44_pairs_data-comparision.json', 'w') as f:
     json.dump(comparision_json, f, indent=4)
 
 

@@ -20,6 +20,9 @@ from io import BytesIO
 from django.urls import reverse
 from django.db.models import Count, Q, F
 from django.http import HttpResponse, JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+import os
 
 def index_view(request):
     return redirect('modelversion_list')
@@ -656,3 +659,31 @@ def tryonbatch_list(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     return render(request, 'main/tryonbatch_list.html', {'batches': page_obj})
+
+@login_required
+def save_badges(request):
+    if not request.user.is_superuser:
+        return JsonResponse({'success': False, 'error': 'Permission denied'}, status=403)
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'POST required'}, status=405)
+    try:
+        data = json.loads(request.body)
+        # Path to the JSON file
+        json_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'samples', '44_pairs_data-comparision.json')
+        # Load existing data
+        with open(json_path, 'r') as f:
+            pairs_data = json.load(f)
+        # Update badge values
+        for item_name, models in data.items():
+            if item_name not in pairs_data:
+                continue
+            for model_name, badge_types in models.items():
+                for badge_type, value in badge_types.items():
+                    key = f"{model_name}_{badge_type}"
+                    pairs_data[item_name][key] = value
+        # Save back to file
+        with open(json_path, 'w') as f:
+            json.dump(pairs_data, f, indent=4)
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)

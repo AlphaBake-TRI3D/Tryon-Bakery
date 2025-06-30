@@ -25,4 +25,5 @@ urlpatterns = [
 
 
     path('compare/', views_comparision.compare, name='compare'),
+    path('save_badges/', views.save_badges, name='save_badges'),
 ] 
