@@ -58,12 +58,12 @@ if not aws_session_token:
 bucket = os.getenv('AWSBucketName','alpha-bake-loras')
 region_name = os.getenv('AWSRegion', 'us-east-1')
 
-input_key = '5pairs-v-small'
-input_dir = f'inputs/5pairs-v-small'
+input_key = '200pairs-v3'
+input_dir = f'inputs/200pairs-v3'
 OUTPUT_DIR = 'outputs/'
 if not os.path.exists(OUTPUT_DIR):
     os.makedirs(OUTPUT_DIR)
-output_json_path = f'{OUTPUT_DIR}/5pairs-v-small.json'
+output_json_path = f'{OUTPUT_DIR}/200pairs-v3.json'
 
 
 
@@ -86,9 +86,14 @@ for cur_folder in os.listdir(input_dir):
         continue
 
     json_path = os.path.join(cur_dir, 'tryon_params.json')
-    with open(json_path, 'r') as f:
-        tryon_params = json.load(f)
-    garment_type = tryon_params['garment']['garment_type']
+    garment_type = 'full'
+    if os.path.exists(json_path):
+        
+        with open(json_path, 'r') as f:
+            tryon_params = json.load(f)
+        garment_type = tryon_params['garment']['garment_type']
+    
+
     
     with open(human_image_path, "rb") as f:
         human_img = Image.open(f)

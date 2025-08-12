@@ -25,5 +25,8 @@ urlpatterns = [
 
 
     path('compare/', views_comparision.compare, name='compare'),
+    path('compareG/', views_comparision.compareG, name='compareG'),
+    path('compare200/', views_comparision.compare200, name='compare200'),
+    # path('compareM/', views_comparision.compareM, name='compareM'),
     path('save_badges/', views.save_badges, name='save_badges'),
 ] 

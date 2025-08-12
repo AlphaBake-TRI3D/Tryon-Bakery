@@ -22,7 +22,8 @@
         "amazon nova 1.0_garment_realism": true,
         "amazon nova 1.0_body_type_realism": false,
         "amazon nova 1.0_overall_realism": true,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": null
     },
     "h40__g3": {
         "name": "h40__g3",
@@ -47,7 +48,8 @@
         "amazon nova 1.0_garment_realism": true,
         "amazon nova 1.0_body_type_realism": true,
         "amazon nova 1.0_overall_realism": true,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": null
     },
     "h25__g35": {
         "name": "h25__g35",
@@ -72,7 +74,8 @@
         "amazon nova 1.0_garment_realism": true,
         "amazon nova 1.0_body_type_realism": true,
         "amazon nova 1.0_overall_realism": true,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": null
     },
     "h29__g32": {
         "name": "h29__g32",
@@ -97,9 +100,11 @@
         "amazon nova 1.0_garment_realism": false,
         "amazon nova 1.0_body_type_realism": false,
         "amazon nova 1.0_overall_realism": true,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": null
     },
     "h40__g19_G": {
+        "google-shopping-20250708": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/44_pairs_data_v2/google-1.0/h40__g19_G.jpg",
         "name": "h40__g19_G",
         "human": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/Scale/44pairs/h40__g19_G/human.jpg",
         "garment": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/Scale/44pairs/h40__g19_G/garment.jpg",
@@ -122,7 +127,11 @@
         "amazon nova 1.0_garment_realism": true,
         "amazon nova 1.0_body_type_realism": true,
         "amazon nova 1.0_overall_realism": true,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708_garment_realism": true,
+        "google-shopping-20250708_body_type_realism": true,
+        "google-shopping-20250708_overall_realism": true,
+        "google-shopping-20250708_face_realism": true
     },
     "h51__g25": {
         "name": "h51__g25",
@@ -147,7 +156,8 @@
         "amazon nova 1.0_garment_realism": true,
         "amazon nova 1.0_body_type_realism": true,
         "amazon nova 1.0_overall_realism": false,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": null
     },
     "h9__g13_G": {
         "name": "h9__g13_G",
@@ -172,7 +182,8 @@
         "amazon nova 1.0_garment_realism": true,
         "amazon nova 1.0_body_type_realism": true,
         "amazon nova 1.0_overall_realism": true,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/44_pairs_data_v2/google-1.0/h9__g13_G.jpg"
     },
     "h42__g11": {
         "name": "h42__g11",
@@ -197,7 +208,8 @@
         "amazon nova 1.0_garment_realism": false,
         "amazon nova 1.0_body_type_realism": false,
         "amazon nova 1.0_overall_realism": true,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": null
     },
     "h31__g7_G": {
         "name": "h31__g7_G",
@@ -212,7 +224,8 @@
         "fashnai-1.6-quality_body_type_realism": true,
         "fashnai-1.6-quality_overall_realism": true,
         "fashnai-1.6-quality_face_realism": true,
-        "amazon nova 1.0": null
+        "amazon nova 1.0": null,
+        "google-shopping-20250708": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/44_pairs_data_v2/google-1.0/h31__g7_G.jpg"
     },
     "h11__g14": {
         "name": "h11__g14",
@@ -237,7 +250,8 @@
         "amazon nova 1.0_garment_realism": true,
         "amazon nova 1.0_body_type_realism": true,
         "amazon nova 1.0_overall_realism": true,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": null
     },
     "h21__g19_G": {
         "name": "h21__g19_G",
@@ -262,7 +276,8 @@
         "amazon nova 1.0_garment_realism": false,
         "amazon nova 1.0_body_type_realism": true,
         "amazon nova 1.0_overall_realism": true,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/44_pairs_data_v2/google-1.0/h21__g19_G.jpg"
     },
     "h21__g17_G": {
         "name": "h21__g17_G",
@@ -287,7 +302,8 @@
         "amazon nova 1.0_garment_realism": true,
         "amazon nova 1.0_body_type_realism": true,
         "amazon nova 1.0_overall_realism": true,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/44_pairs_data_v2/google-1.0/h21__g17_G.jpg"
     },
     "h35__g16": {
         "name": "h35__g16",
@@ -312,7 +328,8 @@
         "amazon nova 1.0_garment_realism": false,
         "amazon nova 1.0_body_type_realism": false,
         "amazon nova 1.0_overall_realism": false,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": null
     },
     "h31__g9_G": {
         "name": "h31__g9_G",
@@ -337,7 +354,8 @@
         "amazon nova 1.0_garment_realism": true,
         "amazon nova 1.0_body_type_realism": true,
         "amazon nova 1.0_overall_realism": true,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/44_pairs_data_v2/google-1.0/h31__g9_G.jpg"
     },
     "h27__g13": {
         "name": "h27__g13",
@@ -362,7 +380,8 @@
         "amazon nova 1.0_garment_realism": false,
         "amazon nova 1.0_body_type_realism": true,
         "amazon nova 1.0_overall_realism": false,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": null
     },
     "h77__g6": {
         "name": "h77__g6",
@@ -387,7 +406,8 @@
         "amazon nova 1.0_garment_realism": false,
         "amazon nova 1.0_body_type_realism": true,
         "amazon nova 1.0_overall_realism": false,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": null
     },
     "h32__g18": {
         "name": "h32__g18",
@@ -412,7 +432,8 @@
         "amazon nova 1.0_garment_realism": true,
         "amazon nova 1.0_body_type_realism": true,
         "amazon nova 1.0_overall_realism": true,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": null
     },
     "h31__g37": {
         "name": "h31__g37",
@@ -437,7 +458,8 @@
         "amazon nova 1.0_garment_realism": true,
         "amazon nova 1.0_body_type_realism": true,
         "amazon nova 1.0_overall_realism": true,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": null
     },
     "h10__g3_G": {
         "name": "h10__g3_G",
@@ -462,7 +484,8 @@
         "amazon nova 1.0_garment_realism": true,
         "amazon nova 1.0_body_type_realism": true,
         "amazon nova 1.0_overall_realism": true,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/44_pairs_data_v2/google-1.0/h10__g3_G.jpg"
     },
     "h38__g34": {
         "name": "h38__g34",
@@ -486,7 +509,8 @@
         "amazon nova 1.0": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/44_pairs_data_v2/amazon nova 1.0/h38__g34.jpg",
         "amazon nova 1.0_body_type_realism": true,
         "amazon nova 1.0_overall_realism": true,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": null
     },
     "h9__g10_G": {
         "name": "h9__g10_G",
@@ -511,7 +535,8 @@
         "amazon nova 1.0_garment_realism": false,
         "amazon nova 1.0_body_type_realism": true,
         "amazon nova 1.0_overall_realism": true,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/44_pairs_data_v2/google-1.0/h9__g10_G.jpg"
     },
     "h40__g21_G": {
         "name": "h40__g21_G",
@@ -531,7 +556,8 @@
         "amazon nova 1.0_garment_realism": false,
         "amazon nova 1.0_body_type_realism": true,
         "amazon nova 1.0_overall_realism": true,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/44_pairs_data_v2/google-1.0/h40__g21_G.jpg"
     },
     "h9__g14_G": {
         "name": "h9__g14_G",
@@ -556,7 +582,8 @@
         "amazon nova 1.0_garment_realism": false,
         "amazon nova 1.0_body_type_realism": true,
         "amazon nova 1.0_overall_realism": true,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/44_pairs_data_v2/google-1.0/h9__g14_G.jpg"
     },
     "h40__g15_G": {
         "name": "h40__g15_G",
@@ -581,7 +608,8 @@
         "amazon nova 1.0_garment_realism": false,
         "amazon nova 1.0_body_type_realism": true,
         "amazon nova 1.0_overall_realism": true,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/44_pairs_data_v2/google-1.0/h40__g15_G.jpg"
     },
     "h55__g6": {
         "name": "h55__g6",
@@ -606,7 +634,8 @@
         "amazon nova 1.0_garment_realism": true,
         "amazon nova 1.0_body_type_realism": false,
         "amazon nova 1.0_overall_realism": false,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": null
     },
     "h10__g2_G": {
         "name": "h10__g2_G",
@@ -631,7 +660,8 @@
         "amazon nova 1.0_garment_realism": true,
         "amazon nova 1.0_body_type_realism": true,
         "amazon nova 1.0_overall_realism": true,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/44_pairs_data_v2/google-1.0/h10__g2_G.jpg"
     },
     "h20__g4_G": {
         "name": "h20__g4_G",
@@ -656,7 +686,8 @@
         "amazon nova 1.0_garment_realism": false,
         "amazon nova 1.0_body_type_realism": true,
         "amazon nova 1.0_overall_realism": true,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/44_pairs_data_v2/google-1.0/h20__g4_G.jpg"
     },
     "h31__g5_G": {
         "name": "h31__g5_G",
@@ -676,7 +707,8 @@
         "amazon nova 1.0_garment_realism": true,
         "amazon nova 1.0_body_type_realism": true,
         "amazon nova 1.0_overall_realism": true,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/44_pairs_data_v2/google-1.0/h31__g5_G.jpg"
     },
     "h9__g11_G": {
         "name": "h9__g11_G",
@@ -701,7 +733,8 @@
         "amazon nova 1.0_garment_realism": true,
         "amazon nova 1.0_body_type_realism": true,
         "amazon nova 1.0_overall_realism": true,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/44_pairs_data_v2/google-1.0/h9__g11_G.jpg"
     },
     "h9__g15_G": {
         "name": "h9__g15_G",
@@ -726,7 +759,8 @@
         "amazon nova 1.0_garment_realism": false,
         "amazon nova 1.0_body_type_realism": true,
         "amazon nova 1.0_overall_realism": true,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/44_pairs_data_v2/google-1.0/h9__g15_G.jpg"
     },
     "h40__g20_G": {
         "name": "h40__g20_G",
@@ -751,7 +785,8 @@
         "amazon nova 1.0_garment_realism": true,
         "amazon nova 1.0_body_type_realism": true,
         "amazon nova 1.0_overall_realism": false,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/44_pairs_data_v2/google-1.0/h40__g20_G.jpg"
     },
     "h3__g1": {
         "name": "h3__g1",
@@ -776,7 +811,8 @@
         "amazon nova 1.0_garment_realism": false,
         "amazon nova 1.0_body_type_realism": true,
         "amazon nova 1.0_overall_realism": true,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": null
     },
     "h10__g1_G": {
         "name": "h10__g1_G",
@@ -801,7 +837,8 @@
         "amazon nova 1.0_garment_realism": false,
         "amazon nova 1.0_body_type_realism": true,
         "amazon nova 1.0_overall_realism": true,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/44_pairs_data_v2/google-1.0/h10__g1_G.jpg"
     },
     "h9__g9_G": {
         "name": "h9__g9_G",
@@ -826,7 +863,8 @@
         "amazon nova 1.0_garment_realism": true,
         "amazon nova 1.0_body_type_realism": true,
         "amazon nova 1.0_overall_realism": true,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/44_pairs_data_v2/google-1.0/h9__g9_G.jpg"
     },
     "h31__g6_G": {
         "name": "h31__g6_G",
@@ -851,7 +889,8 @@
         "amazon nova 1.0_garment_realism": true,
         "amazon nova 1.0_body_type_realism": true,
         "amazon nova 1.0_overall_realism": false,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/44_pairs_data_v2/google-1.0/h31__g6_G.jpg"
     },
     "h9__g12_G": {
         "name": "h9__g12_G",
@@ -876,7 +915,8 @@
         "amazon nova 1.0_garment_realism": true,
         "amazon nova 1.0_body_type_realism": true,
         "amazon nova 1.0_overall_realism": true,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": null
     },
     "h21__g18_G": {
         "name": "h21__g18_G",
@@ -901,7 +941,8 @@
         "amazon nova 1.0_garment_realism": true,
         "amazon nova 1.0_body_type_realism": true,
         "amazon nova 1.0_overall_realism": true,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/44_pairs_data_v2/google-1.0/h21__g18_G.jpg"
     },
     "h19__g9": {
         "name": "h19__g9",
@@ -926,7 +967,8 @@
         "amazon nova 1.0_garment_realism": true,
         "amazon nova 1.0_body_type_realism": true,
         "amazon nova 1.0_overall_realism": true,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": null
     },
     "h21__g16_G": {
         "name": "h21__g16_G",
@@ -951,7 +993,8 @@
         "amazon nova 1.0_garment_realism": false,
         "amazon nova 1.0_body_type_realism": true,
         "amazon nova 1.0_overall_realism": true,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/44_pairs_data_v2/google-1.0/h21__g16_G.jpg"
     },
     "h9__g16_G": {
         "name": "h9__g16_G",
@@ -976,7 +1019,8 @@
         "amazon nova 1.0_garment_realism": false,
         "amazon nova 1.0_body_type_realism": true,
         "amazon nova 1.0_overall_realism": true,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/44_pairs_data_v2/google-1.0/h9__g16_G.jpg"
     },
     "h31__g8_G": {
         "name": "h31__g8_G",
@@ -1001,7 +1045,8 @@
         "amazon nova 1.0_garment_realism": false,
         "amazon nova 1.0_body_type_realism": true,
         "amazon nova 1.0_overall_realism": false,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": "https://api-alphabake-public.s3.us-east-1.amazonaws.com/44_pairs_data_v2/google-1.0/h31__g8_G.jpg"
     },
     "h47__g33": {
         "name": "h47__g33",
@@ -1026,6 +1071,7 @@
         "amazon nova 1.0_garment_realism": true,
         "amazon nova 1.0_body_type_realism": false,
         "amazon nova 1.0_overall_realism": true,
-        "amazon nova 1.0_face_realism": true
+        "amazon nova 1.0_face_realism": true,
+        "google-shopping-20250708": null
     }
 }

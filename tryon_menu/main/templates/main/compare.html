@@ -292,7 +292,9 @@ table.table img {
             <table class="table table-bordered text-center mb-0">
                 <thead>
                     <tr>
+                        {% if not is_google %}
                         <th style="width: 10%;">Name</th>
+                        {% endif %}
                         <th style="width: 10%;">Garment</th>
                         <th style="width: 10%;">Human</th>
                         
@@ -307,11 +309,18 @@ table.table img {
                 <tbody>
                     {% for item in comparisons %}
                     <tr>
+                        {% if not is_google %}
                         <td class="align-middle" style="cursor: pointer;" onclick="openAllModelOutputs('{{ item.model_images|join:',' }}', '{{ models_list|join:',' }}')">
                             <strong>{{ item.name }}</strong>
-                        </td>
+                            </td>
+                        {% endif %}
                         <td>
                                 <img src="{{ item.garment }}" alt="Garment" class="img-fluid rounded responsive-img input-image" style="max-height: 300px;cursor:pointer;" onclick="handleImageClick('{{ item.garment }}', '{{ item.garment }}', '{{ item.garment }}', '{{ item.human }}', '{{ item.images_alone|join:',' }}', '{{ models_list|join:',' }}', 'garment')">
+                                <br>
+                                {% if item.garment_type %}
+                                    <strong>Garment Type:</strong>
+                                    {{ item.garment_type }}
+                                {% endif %}
                         </td>
                         <td>
                             <img src="{{ item.human }}" alt="Human" class="img-fluid rounded responsive-img input-image" style="max-height: 300px;cursor:pointer;" onclick="handleImageClick('{{ item.human }}', '{{ item.human }}', '{{ item.garment }}', '{{ item.human }}', '{{ item.images_alone|join:',' }}', '{{ models_list|join:',' }}', 'human')">
@@ -320,6 +329,7 @@ table.table img {
                         {% if item.model_images %}
                             {% for model_image in item.model_images %}
                             <!-- loop index -->
+                             {% if model_image.url %}
                                 <td>
                                     <div class="model-image-badge-container">
                                         <img src="{{ model_image.url }}" alt="Model output" class="img-fluid rounded responsive-img"  onclick="handleImageClick('{{ model_image.url }}', '{{ model_image.url }}', '{{ item.garment }}', '{{ item.human }}', '{{ item.images_alone|join:',' }}', '{{ models_list|join:',' }}', 'output')">
@@ -355,6 +365,14 @@ table.table img {
                                         </div>
                                     </div>
                                 </td>
+                            {% else %}
+
+                                <td>
+                                    <div class="model-image-badge-container">
+                                        <img src="../../static/inputs/no-image-v2.png" alt="Model output" class="img-fluid rounded responsive-img" style="max-width: 220px;max-height: 250px;" >
+                                    </div>
+                                </td>
+                            {% endif %}
                             {% endfor %}
                         {% else %}
                             <td colspan="{{ models_list|length }}">No model images available.</td>

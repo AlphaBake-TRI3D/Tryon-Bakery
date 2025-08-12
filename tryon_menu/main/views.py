@@ -667,9 +667,23 @@ def save_badges(request):
     if request.method != 'POST':
         return JsonResponse({'success': False, 'error': 'POST required'}, status=405)
     try:
+        print(request.body)
         data = json.loads(request.body)
+        
+        # Determine which JSON file to use based on the referer URL
+        referer = request.META.get('HTTP_REFERER', '')
+        if 'compareG' in referer:
+            json_filename = 'google-comparision.json'
+        elif 'compareM' in referer:
+            json_filename = 'compareM-comparision.json'
+        elif 'compare200' in referer:
+            json_filename = '200pairs-v3-comparision.json'
+        else:
+            json_filename = '44_pairs_data-comparision.json'
+        
         # Path to the JSON file
-        json_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'samples', '44_pairs_data-comparision.json')
+        json_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'samples', json_filename)
+        
         # Load existing data
         with open(json_path, 'r') as f:
             pairs_data = json.load(f)
